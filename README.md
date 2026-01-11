@@ -17,8 +17,6 @@ python3 -m venv .venv
 source chatgpt/.venv/bin/activate 
 ```
 
-> [!IMPORTANT]
-> Frontend installation
 
 ``` bash
 cd frontend
@@ -26,5 +24,7 @@ pip3 install requirements.txt
 
 ```
 
+> [!IMPORTANT]
+> The frontend requires a running backend server to function. Make sure to start the backend first.
 ## Licence
 BBG-chatGPT is released under the 
