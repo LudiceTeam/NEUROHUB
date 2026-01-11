@@ -17,7 +17,7 @@ python3 -m venv .venv
 source chatgpt/.venv/bin/activate 
 ```
 
-> [!INFO] 
+> [!IMPORTANT]
 > Frontend installation
 
 ``` bash
