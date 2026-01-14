@@ -20,17 +20,17 @@ source chatgpt/.venv/bin/activate
 
 ``` bash
 cd frontend
-pip3 install requirements.txt
+pip3 install -r requirements.txt
 python3 app.py
 ```
 
 ``` bash
 cd backend
-pip3 install requirements.txt
+pip3 install -r requirements.txt
 python3 api.py
 ```
 
 > [!IMPORTANT]
 > The frontend requires a running backend server to function. Make sure to start the backend first.
 ## Licence
-BBG-chatGPT is released under the 
+BBG-chatGPT is released under the [Apache License 2.0](LICENSE).
