@@ -5,14 +5,15 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
-from backend.database.chats_database.chats_models import metadata_obj,chats_table
-
+#from backend.database.chats_database.chats_models import metadata_obj,chats_table
+from chats_models import metadata_obj,chats_table
+import asyncio
 
 load_dotenv()
 
 
 async_engine = create_async_engine(
-   f"postgresql+psycopg://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}@localhost:5432/ai_girl_messages", 
+   f"postgresql+asyncpg://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}@localhost:5432/ai_girl_messages", 
     pool_size=20,           # Размер пула соединений
     max_overflow=50,        # Максимальное количество соединений
     pool_recycle=3600,      # Пересоздавать соединения каждый час
@@ -85,3 +86,4 @@ async def delete_all_messages(username:str):
                 await conn.execute(stmt)
         except Exception as e:
             return Exception(f"Error : {e}")                    
+

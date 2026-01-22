@@ -6,3 +6,5 @@ env
 /env
 env/
 backend/database/chats_database/.env
+backend/database/chats_database/.env
+backend/database/.env
