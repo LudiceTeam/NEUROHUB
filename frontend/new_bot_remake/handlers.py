@@ -14,6 +14,9 @@ from config import PROJECT_ROOT
 from pathlib import Path
 import fitz
 from pdf2image import convert_from_path
+import zipfile
+
+
 
 
 
@@ -42,17 +45,28 @@ async def profile_handler(message:Message):
     user_chat_flag = False
     user_name = message.from_user.username
     user_id = message.from_user.id
-    user_data = get_me(str(user_id))
+    user_data = await get_me(str(user_id))
     user_data[str(user_id)] = user_name
     user_subbed:bool = await  is_user_subbed(str(user_id))
+    result = f"""
+        Profile of {user_data[str(user_id)]}
+        
+        
+        Free requests : {user_data["Free requests"]}
+        
+        Subscribed : {user_data["Subscribed"]}
+
+        Date of subscribtion to end : {user_data["Date of subscribtion to end"] if user_data["Subscribed"] else None}    
+    
+    """
     if not user_subbed:
         await message.answer(
-        user_data,
+        result,
         reply_markup=kb.profile_key_borad        
         )
     else:
         await message.answer(
-        user_data        
+        result        
     )
 
 @router.message(F.text == "Subscribe")
@@ -165,9 +179,12 @@ async def read_pdf(path:str) -> str:
                 os.unlink(tmp_file.name)    
         return "\n\n".join(all_text)
     except Exception as e:
-        raise Exception(f"Error : {e}")    
-              
+        raise Exception(f"Error : {e}")            
     
+async def read_doc(path:str) -> str:
+    pass
+
+
 @router.message(F.document)
 async def answer_with_document(message:Message):
     if user_chat_flag:
@@ -181,7 +198,7 @@ async def answer_with_document(message:Message):
             if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
                 text = await read_text_from_image(file_path)
             elif file_path.endswith('.pdf'):
-                pass
+                text = await read_pdf(file_path)
             elif file_path.endswith(('.docx','.doc')):
                 pass
             elif file_path.endswith(('.txt','.text')):

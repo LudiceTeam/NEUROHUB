@@ -8,9 +8,9 @@ main_keyboard = ReplyKeyboardMarkup(keyboard=[
 ])
 
 profile_key_borad = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text = "Subscribe")]
+    [InlineKeyboardButton(text = "Subscribe",callback_data="Subscribe")]
 ])
 
 buy_sub_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text = "Buy subscribtion")]
+    [InlineKeyboardButton(text = "Buy subscribtion",callback_data="Buy subscribtion")]
 ])
