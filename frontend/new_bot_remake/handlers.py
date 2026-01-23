@@ -12,6 +12,9 @@ import easyocr
 import numpy as np
 from config import PROJECT_ROOT
 from pathlib import Path
+import fitz
+from pdf2image import convert_from_path
+
 
 
 
@@ -144,13 +147,29 @@ async def answer_with_photo(message:Message):
             response = ask_chat_gpt(str(message.text))
             await write_message(str(user_id),str(message.text),response)
             await message.answer(text = response)
-                    
+    
+async def read_text_from_image(file_path:str) -> str:
+    results = reader.readtext(file_path,detail = 0,paragraph=True)
+    return "\n".join(results) if results else ""
+
+async def read_pdf(path:str) -> str:
+    all_text = []
+    try:
+        images = convert_from_path(path)
+        for i,image in enumerate(images):
+            with tempfile.NamedTemporaryFile(delete = False,suffix=".jpg") as tmp_file:
+                image.save(tmp_file.name,"JPEG")
+                page_text = await read_text_from_image(tmp_file.name)
+                if page_text:
+                    all_text.append(page_text)
+                os.unlink(tmp_file.name)    
+        return "\n\n".join(all_text)
+    except Exception as e:
+        raise Exception(f"Error : {e}")    
+              
     
 @router.message(F.document)
 async def answer_with_document(message:Message):
-    async def read_text_from_image(file_path:str) -> str:
-        results = reader.readtext(file_path,detail = 0,paragraph=True)
-        return "\n".join(results) if results else ""
     if user_chat_flag:
         document = message.document
         filename = document.file_name.lower()
@@ -173,7 +192,11 @@ async def answer_with_document(message:Message):
                 return
         except Exception as e:
             raise Exception(f"Error : {e}") 
+        finally:
+            if os.path.exists(file_path):
+                os.unlink(file_path)
             
-    
+            
+
     
        
