@@ -132,7 +132,7 @@ async def get_amount_of_zaproses(username:str) -> int:
             res = await conn.execute(stmt)
             data = res.scalar_one_or_none()
             if data is not None:
-                return int(data[0])
+                return int(data)
         except Exception as e:
             raise  Exception(f"Error : {e}")  
         

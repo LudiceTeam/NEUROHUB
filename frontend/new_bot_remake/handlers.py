@@ -100,7 +100,7 @@ async def buy_sub_handler(message:Message):
         is_flexible=False, 
     )
 
-@router.message("Chat")
+@router.message(F.text == "Chat")
 async def chat_handler(message:Message):
     global user_chat_flag
     user_chat_flag = True  
@@ -109,9 +109,10 @@ async def chat_handler(message:Message):
 @router.message()
 async def answer_messages(message:Message):
     if user_chat_flag:
+        await message.answer("Думаю...")
         user_id = message.from_user.id
-        is_user_subbed = await is_user_subbed(str(user_id))
-        if not is_user_subbed:
+        is_user_subbed_ = await is_user_subbed(str(user_id))
+        if not is_user_subbed_:
             user_free_req = await get_amount_of_zaproses(str(user_id))
             if user_free_req == 0:
                 await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
@@ -129,6 +130,7 @@ async def answer_messages(message:Message):
 @router.message(F.photo)
 async def answer_with_photo(message:Message):
     if user_chat_flag:
+        await message.answer("Думаю...")
         photo = message.photo[-1]
         file = await message.bot.get_file(photo.file_id)
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
@@ -147,8 +149,8 @@ async def answer_with_photo(message:Message):
             return      
         
         user_id = message.from_user.id
-        is_user_subbed = await is_user_subbed(str(user_id))
-        if not is_user_subbed:
+        is_user_subbed_ = await is_user_subbed(str(user_id))
+        if not is_user_subbed_:
             user_free_req = await get_amount_of_zaproses(str(user_id))
             if user_free_req == 0:
                 await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
@@ -188,6 +190,7 @@ async def read_pdf(path:str) -> str:
 @router.message(F.document)
 async def answer_with_document(message:Message):
     if user_chat_flag:
+        await message.answer("Думаю...")
         document = message.document
         filename = document.file_name.lower()
         file = await message.bot.download_file(document.file_id)
@@ -210,8 +213,8 @@ async def answer_with_document(message:Message):
             if os.path.exists(file_path):
                 os.unlink(file_path)
             user_id = message.from_user.id
-            is_user_subbed = await is_user_subbed(str(user_id))
-            if not is_user_subbed:
+            is_user_subbed_ = await is_user_subbed(str(user_id))
+            if not is_user_subbed_:
                 user_req = await get_amount_of_zaproses(str(user_id))
                 if user_req == 0:
                     await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
