@@ -160,8 +160,8 @@ async def answer_with_photo(message:Message):
                 await write_message(str(user_id),str(message.text),response)
                 await message.answer(text = response)
         else:
-            response = ask_chat_gpt(str(message.text))
-            await write_message(str(user_id),str(message.text),response)
+            response = ask_chat_gpt(str(full_text))
+            await write_message(str(user_id),str(full_text),response)
             await message.answer(text = response)
     
 async def read_text_from_image(file_path:str) -> str:
@@ -207,11 +207,28 @@ async def answer_with_document(message:Message):
             else:
                 await message.answer(text = "Формат файла не поддерживается")
                 return
-        except Exception as e:
-            raise Exception(f"Error : {e}") 
-        finally:
             if os.path.exists(file_path):
                 os.unlink(file_path)
+            user_id = message.from_user.id
+            is_user_subbed = await is_user_subbed(str(user_id))
+            if not is_user_subbed:
+                user_req = await get_amount_of_zaproses(str(user_id))
+                if user_req == 0:
+                    await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
+                else:
+                    full_text:str = str(message.text) + "\n" + message.caption + "\n" + text
+                    await remove_free_zapros(str(user_id))
+                    response = ask_chat_gpt(str(full_text))
+                    await write_message(str(user_id),str(full_text),response)
+                    await message.answer(text = response)
+            else:
+                response = ask_chat_gpt(str(full_text))
+                await write_message(str(user_id),str(full_text),response)
+                await message.answer(text = response)                
+                    
+        except Exception as e:
+            raise Exception(f"Error : {e}") 
+
             
             
 
