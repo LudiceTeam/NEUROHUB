@@ -115,7 +115,7 @@ async def answer_messages(message:Message):
                 await write_message(str(user_id),str(message.text),response)
                 await message.answer(text = response)
         else:
-            response = ask_chat_gpt(str(message.text))
+            response = ask_chat_gpt(str(message.text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}")
             await write_message(str(user_id),str(message.text),response)
             await message.answer(text = response)
                 
