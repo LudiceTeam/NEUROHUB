@@ -68,13 +68,16 @@ async def delete_message(message_id:str):
             raise  Exception(f"Error : {e}") 
 
 
-async def get_all_user_messsages(username:str):
+async def get_all_user_messsages(username:str) -> str:
     async with AsyncSession(async_engine) as conn:
         try:
             stmt = select(chats_table).where(chats_table.c.username == username)
             res = await conn.execute(stmt)
             data = res.fetchall()
-            return data 
+            result:List[str] = []
+            for dt in data:
+                result.append(str(dt[0]))
+            return "\n".join(result)     
         except Exception as e:
             raise  Exception(f"Error : {e}") 
           
