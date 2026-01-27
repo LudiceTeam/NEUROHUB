@@ -1,11 +1,11 @@
-from sqlalchemy import select,delete,update
+from sqlalchemy import select,delete,update,exc
 from typing import Optional,List 
 import uuid
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
-from backend.database.state_database.state_models import metadata_obj,chats_table
+from backend.database.state_database.state_models import metadata_obj,state_table
 #from chats_models import metadata_obj,chats_table
 import asyncio
 
@@ -36,8 +36,19 @@ async def create_table():
 async def get_all_data():
     async with AsyncSession(async_engine) as conn:
         try:
-            stmt = select(chats_table)
+            stmt = select(state_table)
             res = await conn.execute(stmt)
             return res.fetchall()
         except Exception as e:
             raise Exception(f"Error : {e}")  
+
+async def change_user_state(username:str,state:bool):
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = state_table.update().where(state_table.c.username == username).values(
+                    chat = state
+                )
+                await conn.execute(stmt)
+            except exc.SQLAlchemyError:
+                raise exc.SQLAlchemyError("Error while executing")      
