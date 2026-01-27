@@ -42,6 +42,32 @@ async def get_all_data():
         except Exception as e:
             raise Exception(f"Error : {e}")  
 
+async def is_user_exists(username:str) -> bool:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(state_table.c.username).where(state_table.c.username == username)
+            res = await conn.execute(stmt)
+            data = res.scalar_one_or_none()
+            if data is not None:
+                return True
+            return False
+        except exc.SQLAlchemyErro:
+            raise exc.SQLAlchemyError("Error while executing")        
+
+async def create_user(username:str):
+    if await is_user_exists(username):
+        return
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = state_table.insert().values(
+                    username = username,
+                    chat = False
+                )
+                await conn.execute(stmt)
+            except exc.SQLAlchemyError:
+                raise exc.SQLAlchemyError("Error while exeuting")        
+
 async def change_user_state(username:str,state:bool):
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
@@ -52,3 +78,15 @@ async def change_user_state(username:str,state:bool):
                 await conn.execute(stmt)
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")      
+
+async def get_user_state(username:str) -> bool:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = await select(state_table.c.chat).where(state_table.c.username == username)
+            res = await conn.execute(stmt)
+            data = res.scalar_one_or_none()
+            if data is not None:
+                return data
+            raise NameError("Not found")
+        except exc.SQLAlchemyError:
+            raise exc.SQLAlchemyError("Error while executing")
