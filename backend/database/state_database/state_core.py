@@ -90,3 +90,12 @@ async def get_user_state(username:str) -> bool:
             raise NameError("Not found")
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")
+
+async def delete_user_data(username:str):
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = state_table.delete(state_table).where(state_table.c.username == username)
+                await conn.execute(stmt)
+            except exc.SQLAlchemyError:
+                raise exc.SQLAlchemyError("Error while executing")        
