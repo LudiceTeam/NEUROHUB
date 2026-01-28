@@ -286,7 +286,7 @@ async def answer_with_document(message: Message):
                 if user_req == 0:
                     await message.answer(text="У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
                 else:
-                    full_text: str = str(message.text) + "\n" + message.caption + "\n" + text
+                    full_text: str = str(message.text) + "\n" + str(message.caption) + "\n" + text
                     await remove_free_zapros(str(user_id))
                     response = ask_chat_gpt(str(full_text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}")
                     await write_message(str(user_id), str(full_text), response)
