@@ -159,7 +159,7 @@ async def answer_messages(message:Message):
                     await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
                 else:
                     await remove_free_zapros(str(user_id))
-                    response = ask_chat_gpt(str(message.text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}")
+                    response = ask_chat_gpt(str(message.text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages},не нужно на это ничего отвечать просто это сообщения человека что бы сохранился контекст")
                     await write_message(str(user_id),str(message.text),response)
                     await message.answer(text = response)
             else:

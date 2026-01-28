@@ -5,10 +5,9 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
-#from backend.database.state_database.state_models import metadata_obj,state_table
-#from chats_models import metadata_obj,chats_table
+from backend.database.state_database.state_models import metadata_obj,state_table
 import asyncio
-from state_models import metadata_obj,state_table
+#from state_models import metadata_obj,state_table
 
 
 load_dotenv()
@@ -83,7 +82,7 @@ async def change_user_state(username:str,state:bool):
 async def get_user_state(username:str) -> bool:
     async with AsyncSession(async_engine) as conn:
         try:
-            stmt = await select(state_table.c.chat).where(state_table.c.username == username)
+            stmt = select(state_table.c.chat).where(state_table.c.username == username)
             res = await conn.execute(stmt)
             data = res.scalar_one_or_none()
             if data is not None:
