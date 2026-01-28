@@ -235,22 +235,28 @@ async def read_pdf(path:str) -> str:
 
 
 @router.message(F.document)
-async def answer_with_document(message:Message):
+async def answer_with_document(message: Message):
     user_state = await get_user_state(str(message.from_user.id))
     if user_state:
         user_id = message.from_user.id
-        res_unsub:bool = await unsub_full_func(str(user_id))
+        res_unsub: bool = await unsub_full_func(str(user_id))
         if res_unsub:
-            await message.asnwer(text = "Ваша подписка закончилась.Что бы продолжить пользоваться премиум функционалом вам нужно снова ее оформить.Вы можете пользоваться ботом в пределе бесплатного тарифа.Благодарим за поддержку")
+            await message.answer(text="Ваша подписка закончилась.Что бы продолжить пользоваться премиум функционалом вам нужно снова ее оформить.Вы можете пользоваться ботом в пределе бесплатного тарифа.Благодарим за поддержку")
         await message.answer("Думаю...")
         document = message.document
-        filename = document.file_name.lower()
-        file = await message.bot.download_file(document.file_id)
-        user_messages = await get_all_user_messsages(str(user_id))
         
-        with tempfile.TemporaryFile(delete = False,suffix=Path(filename).suffix) as tmp_fi:
-            await message.bot.download_file(file.file_path, tmp_fi.name)
+        filename = document.file_name.lower()
+        
+        #file_bytes = await message.bot.download_file(document.file_id)
+        
+        file_info = await message.bot.get_file(document.file_id)
+        
+        
+        user_messages = await get_all_user_messsages(str(message.from_user.id))
+        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(filename).suffix) as tmp_fi:
+            await message.bot.download_file(file_info.file_path,tmp_fi.name)
             file_path = tmp_fi.name
+        
         try:
             if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
                 text = await read_text_from_image(file_path)
@@ -265,37 +271,31 @@ async def answer_with_document(message:Message):
                 with open(file_path,"r",encoding='utf-8') as file:
                     text = file.read()
             else:
-                await message.answer(text = "Формат файла не поддерживается")
+                await message.answer(text="Формат файла не поддерживается")
                 return
             
             if os.path.exists(file_path):
                 os.unlink(file_path)
             
             if text == "" or not text or text is None:
-                await message.asnwer(text = "Текст с данного файда не был извлечен")    
+                await message.asnwer(text="Текст с данного файда не был извлечен")    
                 
             is_user_subbed_ = await is_user_subbed(str(user_id))
             if not is_user_subbed_:
                 user_req = await get_amount_of_zaproses(str(user_id))
                 if user_req == 0:
-                    await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
+                    await message.answer(text="У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
                 else:
-                    full_text:str = str(message.text) + "\n" + message.caption + "\n" + text
+                    full_text: str = str(message.text) + "\n" + message.caption + "\n" + text
                     await remove_free_zapros(str(user_id))
                     response = ask_chat_gpt(str(full_text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}")
-                    await write_message(str(user_id),str(full_text),response)
-                    await message.answer(text = response)
+                    await write_message(str(user_id), str(full_text), response)
+                    await message.answer(text=response)
             else:
-                full_text = str(message.text) + "\n" +  str(message.caption) + "\n" + text
+                full_text = str(message.text) + "\n" + str(message.caption) + "\n" + text
                 response = ask_chat_gpt(str(full_text + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}"))
-                await write_message(str(user_id),str(full_text),response)
-                await message.answer(text = response)                
+                await write_message(str(user_id), str(full_text), response)
+                await message.answer(text=response)                
                     
         except Exception as e:
-            raise Exception(f"Error : {e}") 
-
-            
-            
-
-
-#переписать логику сосотаяние чата и все (сделать новую бд)     
+            raise Exception(f"Error : {e}")
