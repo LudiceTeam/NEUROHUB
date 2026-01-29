@@ -17,7 +17,7 @@ from pdf2image import convert_from_path
 import zipfile
 from docx import Document
 from doc_handler import extract_text_from_docx_with_images
-from backend.database.chats_database.chats_core import write_message,get_all_user_messsages
+from backend.database.chats_database.chats_core import write_message,get_all_user_messsages,delete_all_messages
 from backend.api import ask_chat_gpt
 from backend.database.core import create_deafault_user_data,remove_free_zapros,check_free_zapros_amount,get_amount_of_zaproses,subscribe,set_sub_bac_to_false,get_me,unsub_all_users_whos_sub_is_ending_today,is_user_subbed,buy_zaproses,get_sub_date_end
 from datetime import timedelta,datetime
@@ -330,3 +330,12 @@ async def answer_with_document(message: Message):
                     
         except Exception as e:
             raise Exception(f"Error : {e}")
+
+@router.message(F.text == "Reset")
+async def reset(message:Message):
+    user_id = str(message.from_user.id)
+    await message.answer("Вы удалите все итсторию переписки,после этого ChatGPT создаст новый чат")
+    await delete_all_messages(user_id)
+    await message.answer("История отчищена.Можете продолжать пользоваться")
+    
+            
