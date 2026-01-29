@@ -3,18 +3,18 @@ import os
 import sys
 from config import PROJECT_ROOT
 
-main_keyboard = ReplyKeyboardMarkup(keyboard=[
+main_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
     [KeyboardButton(text = "Chat"),KeyboardButton(text = "Profile")]
 ])
 
-profile_key_borad = ReplyKeyboardMarkup(keyboard=[
+profile_key_borad = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
     [KeyboardButton(text = "Subscribe"),KeyboardButton(text = "Back")]
 ])
 
-buy_sub_keyboard = ReplyKeyboardMarkup(keyboard=[
+buy_sub_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
     [KeyboardButton(text = "Buy subscribtion"),KeyboardButton(text = "Back")]
 ])
 
-back_keyboard = ReplyKeyboardMarkup(keyboard=[
+back_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
     [KeyboardButton(text = "Back")]
 ])
