@@ -24,11 +24,12 @@ from datetime import timedelta,datetime
 from typing import List
 from backend.database.state_database.state_core import create_user_state,change_user_state,get_user_state
 import time
+from io import BytesIO 
 
 router = Router()
 
 
-reader = easyocr.Reader(["en","ru"])
+reader = easyocr.Reader(["en","ru"],gpu = False) # будут норм сервера поставить True
 
 @router.message(CommandStart())
 async def start_messsage(message:Message):
@@ -189,63 +190,114 @@ async def answer_messages(message:Message):
                 await write_message(str(user_id),str(message.text),response)
                 await message.answer(text = response)
                     
+ 
+
+async def extract_text_from_image_new(image_bytes: bytes) -> str:
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    
+   
+    height, width = img.shape[:2]
+    if max(height, width) > 1600:
+        scale = 1600 / max(height, width)
+        img = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+    
+  
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l)
+    enhanced = cv2.merge((cl, a, b))
+    
+    
+    result = reader.readtext(enhanced, paragraph=True)
+    
+    text = "\n".join([item[1] for item in result])
+    return text.strip()
             
 @router.message(F.photo)
-async def answer_with_photo(message:Message):
-        user_state = await get_user_state(str(message.from_user.id))
-        if user_state:
-            user_id = message.from_user.id
-            res_unsub:bool = await unsub_full_func(str(user_id))
-            if res_unsub:
-                await message.asnwer(text = "Ваша подписка закончилась.Что бы продолжить пользоваться премиум функционалом вам нужно снова ее оформить.Вы можете пользоваться ботом в пределе бесплатного тарифа.Благодарим за поддержку")
-            think_message = await message.answer("Думаю...")
-            photo = message.photo[-1]
-            user_messages = await get_all_user_messsages(str(user_id))
-            file = await message.bot.get_file(photo.file_id)
+async def answer_with_photo(message: Message):
+    user_state = await get_user_state(str(message.from_user.id))
+    if user_state:
+        user_id = message.from_user.id
+        res_unsub: bool = await unsub_full_func(str(user_id))
+        if res_unsub:
+            await message.answer(text="Ваша подписка закончилась. Чтобы продолжить пользоваться премиум функционалом вам нужно снова ее оформить. Вы можете пользоваться ботом в пределах бесплатного тарифа. Благодарим за поддержку")
+        
+        think_message = await message.answer("Думаю...")
+        photo = message.photo[-1]
+        user_messages = await get_all_user_messsages(str(user_id))
+        file = await message.bot.get_file(photo.file_id)
+        
+       
+        file_bytes_io = BytesIO()
+        await message.bot.download_file(file.file_path, file_bytes_io)
+        file_bytes_io.seek(0)
+        image_bytes = file_bytes_io.read()
+        
+       
+      
+        result_text = await extract_text_from_image_new(image_bytes)
+        
+        await message.answer(text = f"Вот текст с картинки  : {result_text}")
+        
+        if not result_text:
+            await message.answer(text="Текст с фотографии не извлечен")
+            await think_message.delete()
+            return
+        
+      
+        try:
             with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
                 await message.bot.download_file(file.file_path, tmp_file.name)
                 results = reader.readtext(tmp_file.name)
             os.unlink(tmp_file.name)
             
+            
             if results:
                 text_lines = []
-                for (bbox,text,prob) in results:
+                for (bbox, text, prob) in results:
                     if prob > 0.3:
                         text_lines.append(text)
-                result_text = "\n".join(text_lines)
+                old_method_text = "\n".join(text_lines)
+                
+               
+                if len(old_method_text) > len(result_text):
+                    result_text = old_method_text
+        except:
+            pass 
+        
+        is_user_subbed_ = await is_user_subbed(str(user_id))
+        
+        if not is_user_subbed_:
+            user_free_req = await get_amount_of_zaproses(str(user_id))
+            if user_free_req == 0:
+                await message.answer(text="У вас не осталось бесплатных запросов. Купить подписку вы можете перейдя в профиль")
+                await think_message.delete()
             else:
-                await message.answer(text = "Текст с фотографии не извелечен")      
-                return      
-            
-            is_user_subbed_ = await is_user_subbed(str(user_id))
-            #await message.answer(f"Вот текст с картинки : {result_text}")
-            if not is_user_subbed_:
-                user_free_req = await get_amount_of_zaproses(str(user_id))
-                if user_free_req == 0:
-                    await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
-                else:
-                    
-                    full_text:str = str(message.text) + "\n" + message.caption + "\n" + result_text
-                    await remove_free_zapros(str(user_id))
-                    response = ask_chat_gpt(str(full_text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}")
-                    try:
-                        await think_message.delete()
-                    except Exception as e:
-                        raise Exception(f"Error : {e}")
-                    time.sleep(0.5)
-                    await write_message(str(user_id),str(full_text),response)
-                    await message.answer(text = response)
-            else:
-                full_text:str = str(message.text) + "\n" + message.caption + "\n" + result_text
-                response = ask_chat_gpt(str(full_text + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}"))
+                full_text: str = str(message.text) + "\n" + (message.caption or "") + "\n" + result_text
+                await remove_free_zapros(str(user_id))
+                response = ask_chat_gpt(str(full_text) + f"Вот все сообщения пользователя чтобы тебе было легче его понимать : {user_messages}")
                 try:
                     await think_message.delete()
                 except Exception as e:
-                    raise Exception(f"Error : {e}")
+                    raise Exception(f"Error: {e}")
                 time.sleep(0.5)
-                await write_message(str(user_id),str(full_text),response)
-                await message.answer(text = response)
-        
+                await write_message(str(user_id), str(full_text), response)
+                await message.answer(text=response)
+        else:
+            full_text: str = str(message.text) + "\n" + (message.caption or "") + "\n" + result_text
+            response = ask_chat_gpt(str(full_text) + f"Вот все сообщения пользователя чтобы тебе было легче его понимать: {user_messages}")
+            try:
+                await think_message.delete()
+            except Exception as e:
+                raise Exception(f"Error: {e}")
+            time.sleep(0.5)
+            await write_message(str(user_id), str(full_text), response)
+            await message.answer(text=response)
+            
+            
+            
 async def read_text_from_image(file_path:str) -> str:
     results = reader.readtext(file_path,detail = 0,paragraph=True)
     return "\n".join(results) if results else ""
