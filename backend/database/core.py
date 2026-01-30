@@ -128,7 +128,7 @@ async def get_amount_of_zaproses(username:str) -> int:
         return KeyError("User not found")
     async with AsyncSession(async_engine) as conn:
         try:
-            stmt = select(table.c.zap).where(username == username)
+            stmt = select(table.c.zap).where(table.c.username == username)
             res = await conn.execute(stmt)
             data = res.scalar_one_or_none()
             if data is not None:
