@@ -54,7 +54,7 @@ async def unsub_full_func(username:str) -> bool:
         date_int_end:int = await transform_date_to_int(str(user_end_date))
         date_int_now:int = await transform_date_to_int(str(date_now)) 
         
-        if date_int_now >= user_end_date:
+        if date_int_now >= date_int_end:
             await set_sub_bac_to_false(username)  
             return True
         return False 
@@ -76,12 +76,13 @@ async def profile_handler(message:Message):
     user_subbed:bool = await  is_user_subbed(str(user_id))
     result = f"""
         Profile of @{user_data[str(user_id)]}
-        Requests : {user_data["Free requests"]}
         
-        Subscribed : {user_data["Subscribed"]}
+Requests : {user_data["Free requests"]}
 
-        Date of subscribtion to end : {user_data["Date of subscribtion to end"] if user_data["Subscribed"] else None}    
-    
+Subscribed : {user_data["Subscribed"]}
+
+Date of subscribtion to end : {user_data["Date of subscribtion to end"] if user_data["Subscribed"] else None}    
+
     """
     if not user_subbed:
         await message.answer(
@@ -150,7 +151,9 @@ async def buy_100_req_handler(message:Message):
     await message.answer(text = "Текст для покупки 100 запросов")
     # инмвойс в звездах на покупку 5 ти запросов
         
-     
+
+
+    
 
 @router.message(F.successful_payment)
 async def succesful_payment_handler(message:Message):
@@ -213,12 +216,12 @@ async def answer_messages(message:Message):
                     await write_message(str(user_id),str(message.text),response)
                     await message.answer(text = response)
             else:
+                response = ask_chat_gpt(str(message.text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}")
                 try:
                     await think_message.delete()
                 except Exception as e:
                     raise Exception(f"Error : {e}")
                 time.sleep(0.5)
-                response = ask_chat_gpt(str(message.text) + f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages}")
                 await write_message(str(user_id),str(message.text),response)
                 await message.answer(text = response)
                     
