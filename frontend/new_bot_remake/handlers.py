@@ -120,12 +120,51 @@ async def buy_sub_handler(message:Message):
             LabeledPrice(label="Товар 1", amount=10000),  # 100.00 RUB
             LabeledPrice(label="Скидка", amount=-2000),   # -20.00 RUB
         ],
-        start_parameter="test",
+        start_parameter="subscribtion",
         need_email=True, 
         need_phone_number=False,
         is_flexible=False, 
         #reply_markup=kb.back_keyboard
     )
+
+
+@router.message(F.text == "Buy Requests")
+async def buy_req_handler(message:Message):
+    await message.answer(text = "Выберете то количество запросов,которое хотите купить",reply_markup=kb.buy_req_keyboard) 
+
+@router.message(F.text == "5 Requests")
+async def buy_5_req_handler(message:Message):
+    await message.answer(text = "Текст для покупки 5 запросов")
+    # инмвойс в звездах на покупку 5 ти запросов
+    
+@router.message(F.text == "20 Requests")
+async def buy_20_req_handler(message:Message):
+    await message.answer(text = "Текст для покупки 20 запросов")
+    # инмвойс в звездах на покупку 20 ти запросов
+   
+@router.message(F.text == "50 Requests")
+async def buy_50_req_handler(message:Message):
+    await message.answer(text = "Текст для покупки 50 запросов")
+    # инмвойс в звездах на покупку 50 ти запросов
+
+@router.message(F.text == "100 Requests")
+async def buy_100_req_handler(message:Message):
+    await message.answer(text = "Текст для покупки 100 запросов")
+    # инмвойс в звездах на покупку 5 ти запросов
+        
+     
+
+@router.message(F.successful_payment)
+async def succesful_payment_handler(message:Message):
+    payment = message.successful_payment
+    user_id = str(message.from_user.id)
+    invoice = payment.split('_')
+    if "ludice_team" in payment:
+        await buy_zaproses(user_id,int(invoice["-1"]))
+        await message.answer(text = f"Вы купили {invoice["-1"]} запросов. Спасибо за покупку. Приятного пользования.")
+    elif "subscribtion" in invoice:
+        await subscribe(user_id)
+        await message.answer("Вы успешно подписались. Спасибо за покупку. Приятного пользования.")
     
 @router.message(F.text == "Reset Context")
 async def reset(message:Message):
@@ -138,13 +177,7 @@ async def reset(message:Message):
 async def help(message:Message):
     await message.answer(text = "Help")
 
-@router.pre_checkout_query()
-async def check_pay(pre_check_out_qr:PreCheckoutQuery):
-    pass 
 
-@router.message(lambda message: message.content_type == ContentType.SUCCESSFUL_PAYMENT)   
-async def  succes_ful_payment(message:Message):
-    pass
 
 @router.message(F.text == "Chat")
 async def chat_handler(message:Message):
@@ -453,4 +486,4 @@ async def answer_with_document(message: Message):
             raise Exception(f"Error : {e}")
 
 
-            
+#сделать разные цены что можно купить отдельно просто запросы
