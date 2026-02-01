@@ -547,3 +547,4 @@ async def answer_with_document(message: Message):
 
 
 # написать оплату для покупки запросов
+# поменять текст в подписке и написать кнопку "About us" и поддрежка
