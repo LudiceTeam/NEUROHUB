@@ -74,24 +74,26 @@ async def profile_handler(message:Message):
     user_data = await get_me(str(user_id))
     user_data[str(user_id)] = user_name
     user_subbed:bool = await  is_user_subbed(str(user_id))
-    result = f"""
-        Profile of @{user_data[str(user_id)]}
+    
+    new_profile_desc = f"""
+        Profile of @{user_data[str(user_id)]}:
         
-Requests : {user_data["Free requests"]}
+Запросов осталось: {user_data["Free requests"]}
 
-Subscribed : {user_data["Subscribed"]}
+Статус подписки: {"активирована" if user_data["Subscribed"] else "не активированна"}
 
-Date of subscribtion to end : {user_data["Date of subscribtion to end"] if user_data["Subscribed"] else None}    
+
+Срок истечения подписки: {user_data["Date of subscribtion to end"] if user_data["Subscribed"] else "подписка не активированна"}
 
     """
     if not user_subbed:
         await message.answer(
-        result,
+         new_profile_desc,
         reply_markup=kb.profile_key_borad        
         )
     else:
         await message.answer(
-        result        
+         new_profile_desc     
     )
 
 @router.message(F.text == "Subscribe")
