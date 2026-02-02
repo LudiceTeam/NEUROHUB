@@ -197,6 +197,12 @@ async def reset(message:Message):
 async def help(message:Message):
     await message.answer(text = "Help")
 
+@router.message(F.text == "About us")
+async def about_us_handler(message:Message):
+    await message.answer(text = "Some text about us")
+
+    
+
 
 
 @router.message(F.text == "Chat")

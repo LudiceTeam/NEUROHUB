@@ -5,7 +5,8 @@ from config import PROJECT_ROOT
 
 main_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
     [KeyboardButton(text = "Chat"),KeyboardButton(text = "Profile")],
-    [KeyboardButton(text = "Reset Context"),KeyboardButton(text = "Help")]
+    [KeyboardButton(text = "Reset Context"),KeyboardButton(text = "Help")],
+    [KeyboardButton(text = "About us"),KeyboardButton(text = "Support")]
 ])
 
 profile_key_borad = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
