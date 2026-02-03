@@ -202,7 +202,7 @@ async def subscribe_basic(username:str):
                 stmt = table.update().where(table.c.username == username).values(
                     basic_sub = True,
                     last_res = str(date),
-                    zap = 50 ,
+                    zap = 25,
                     date = str(date_exp)
                 )
                 await conn.execute(stmt)
@@ -251,7 +251,7 @@ async def refil_zap(username:str):
         async with AsyncSession(async_engine) as conn:
             try:
                 stmt = table.update().where(table.c.username == username).values(
-                    zap = 50
+                    zap = 25
                 )
                 await conn.execute(stmt)
             except Exception as e:

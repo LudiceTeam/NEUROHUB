@@ -97,7 +97,7 @@ async def profile_handler(message:Message):
             return "безлимит"
         elif user_basic_sub:
             user_zaps = await get_amount_of_zaproses(str(user_id))
-            return f"{user_zaps}/50"
+            return f"{user_zaps}/25"
         else:
             user_zaps = await get_amount_of_zaproses(str(user_id))
             return f"{user_zaps}/20"
@@ -108,7 +108,7 @@ async def profile_handler(message:Message):
         if user_subbed:
             return "Premium (Безлимитная)"
         elif user_basic_sub:
-            return "Basic (50 запросов в день)"
+            return "Basic (25 запросов в день)"
         else:
             return "Не активирована"
             
@@ -164,11 +164,11 @@ async def premium_handler(message:Message):
 Деньги, которыми были оплачены услуги возврату не подлежат.
 
 7. Изменение условий. Исполнитель вправе вносить изменения в условия оплаты с уведомлением клиента за 30 дней. Любые споры по оплате подлежат рассмотрению в арбитражном порядке и по месту нахождения Исполнителя настоящего.""" 
-    prices = [LabeledPrice(label="250 ⭐", amount=250)]
+    prices = [LabeledPrice(label="499 ⭐", amount=499)]
     
     await message.bot.send_invoice(
         chat_id=message.from_user.id,
-        title="Покупка подписки",
+        title="Покупка Premium подписки",
         description=buy_sub_text,
         payload="subscribtion",
         provider_token="410694247:TEST:48b50af2-4c6d-4c87-8d3f-6912d0d8c38a",
@@ -271,6 +271,7 @@ async def answer_messages(message:Message):
             think_message = await message.answer("Думаю...")
             user_messages = await get_all_user_messsages(str(user_id))
             is_user_subbed_ = await is_user_subbed(str(user_id))
+            
             if not is_user_subbed_:
                 user_free_req = await get_amount_of_zaproses(str(user_id))
                 if user_free_req == 0:
@@ -597,6 +598,7 @@ async def answer_with_document(message: Message):
             raise Exception(f"Error : {e}")
 
 
-# написать оплату для покупки запросов
-# поменять текст в подписке и написать кнопку "About us" и поддрежка
-#сделать новую подписку
+#текст для всех подписок
+# функция которая обновляет запросы при подписке Basic и одновить немного текст когда закончились запросы
+#написать оплату для подписки Basic и отдельно запросов
+# перевести бота на русский
