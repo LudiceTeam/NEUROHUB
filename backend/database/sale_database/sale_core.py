@@ -40,3 +40,22 @@ async def drop_table():
 async def create_table():
     async with async_engine.begin() as conn:
         await conn.run_sync(metadata_obj.create_all)
+
+
+
+async def is_user_exists(username:str) -> bool:
+   async with AsyncSession(async_engine) as conn:
+       stmt = select(sale_table.c.username).where(sale_table.c.username == username)
+       res = await conn.execute(stmt)
+       data = res.scalar_one_or_none()
+       if data is not None:
+           return True
+       return False 
+   
+async def cretae_user_sale_table(username:str):
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                pass 
+            except Exception as e:
+                raise Exception(f"Error {e}")
