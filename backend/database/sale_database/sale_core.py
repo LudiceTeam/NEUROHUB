@@ -53,6 +53,8 @@ async def is_user_exists(username:str) -> bool:
        return False 
    
 async def cretae_user_sale_table(username:str):
+    if await is_user_exists(username):
+        return
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             try:
@@ -84,4 +86,5 @@ async def does_user_have_sale(username:str) -> bool :
                 return data
             return False
         except Exception as e:
-            raise Exception(f"Error : {e}")                     
+            raise Exception(f"Error : {e}") 
+                       

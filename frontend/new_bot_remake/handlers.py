@@ -23,6 +23,7 @@ from backend.database.core import create_deafault_user_data,remove_free_zapros,c
 from datetime import timedelta,datetime
 from typing import List
 from backend.database.state_database.state_core import create_user_state,change_user_state,get_user_state
+from backend.database.sale_database.sale_core import cretae_user_sale_table,change_to_sale,does_user_have_sale
 import time
 from io import BytesIO 
 
@@ -91,6 +92,9 @@ async def unsub_full_func(username:str) -> bool:
         return False
             
         
+async def count_sale(price:int) -> int:
+    sale:int = int(price * 0.1)
+    return price - sale
     
 
 @router.message(F.text == "Профиль")
@@ -166,7 +170,8 @@ async def subscribe_hander(message:Message):
 
 @router.message(F.text == "Premium")
 async def premium_handler(message:Message):
-  
+    price = 499
+    user_has_sale = await 
     buy_sub_text = "1) Стоимость: 499 звезд / 30 дней. 2) Лимит: безлимитные запросы 3) Бонус: любая следующая покупка в боте будет со скидкой 10%"
     prices = [LabeledPrice(label="499 ⭐", amount=499)]
     
@@ -199,7 +204,7 @@ async def basic_sub_handler(message:Message):
     
     
     
-        
+requests_buy_text = "Данная покупка предоставляет только фиксированное количество запросов без каких-либо дополнительных привилегий, гарантий приоритета или влияния на обработку запросов."        
 
 @router.message(F.text == "Купить Запросы")
 async def buy_req_handler(message:Message):
