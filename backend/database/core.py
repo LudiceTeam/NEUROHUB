@@ -249,14 +249,15 @@ async def get_last_ref_basic(username:str) -> str:
 async def refil_zap(username:str):
     if await is_user_subbed_basic(username):
         async with AsyncSession(async_engine) as conn:
-            try:
-                stmt = table.update().where(table.c.username == username).values(
-                    zap = 25
-                )
-                await conn.execute(stmt)
-            except Exception as e:
-                raise Exception(f"Error : {e}")
-    
+            async with conn.begin():
+                try:
+                    stmt = table.update().where(table.c.username == username).values(
+                        zap = 25
+                    )
+                    await conn.execute(stmt)
+                except Exception as e:
+                    raise Exception(f"Error : {e}")
+        
 async def upadate_last_ref_date(username:str):
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():

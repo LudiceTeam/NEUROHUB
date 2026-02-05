@@ -52,12 +52,13 @@ async def refil_requests_basic_sub(username:str):
         date_now = datetime.now().date()
         user_last_refil_date = await get_last_ref_basic(username)
         
+       
         dt_int = await transform_date_to_int(str(date_now))
         last_ref_int = await transform_date_to_int(str(user_last_refil_date))
         
         if dt_int > last_ref_int:
             await refil_zap(username)
-            await upadate_last_ref_date(date_now)
+            await upadate_last_ref_date(username)
     else:
         return
        
