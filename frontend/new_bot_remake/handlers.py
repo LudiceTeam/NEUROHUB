@@ -93,7 +93,7 @@ async def unsub_full_func(username:str) -> bool:
         
     
 
-@router.message(F.text == "Profile")
+@router.message(F.text == "Профиль")
 async def profile_handler(message:Message):
     user_name = message.from_user.username
     user_id = message.from_user.id
@@ -160,7 +160,7 @@ async def profile_handler(message:Message):
          new_profile_desc     
     )
 
-@router.message(F.text == "Subscribe")
+@router.message(F.text == "Подписаться")
 async def subscribe_hander(message:Message):
     await message.answer(text = "Выберете тип подписки",reply_markup=kb.subscrition_keyborad)
 
@@ -201,20 +201,20 @@ async def basic_sub_handler(message:Message):
     
         
 
-@router.message(F.text == "Buy Requests")
+@router.message(F.text == "Купить Запросы")
 async def buy_req_handler(message:Message):
     await message.answer(text = "Выберете то количество запросов,которое хотите купить",reply_markup=kb.buy_req_keyboard) 
 
-@router.message(F.text == "5 Requests")
+@router.message(F.text == "5 Запросов")
 async def buy_5_req_handler(message:Message):
     await message.answer(text = "Текст для покупки 5 запросов")
     # инмвойс в звездах на покупку 5 ти запросов
     
-@router.message(F.text == "10 Requests")
+@router.message(F.text == "10 Запросов")
 async def buy_10_req_handler(message:Message):
     await message.answer(text = "Текст для покупки 10 запросов")    
 
-@router.message(F.text == "20 Requests")
+@router.message(F.text == "20 Запросов")
 async def buy_20_req_handler(message:Message):
     await message.answer(text = "Текст для покупки 20 запросов")
     # инмвойс в звездах на покупку 20 ти запросов
@@ -250,13 +250,13 @@ async def succesful_payment_handler(message:Message):
     
      
 
-@router.message(F.text == "Back")
+@router.message(F.text == "Назад")
 async def back(message:Message):
     await message.answer(text = "Вы вернулись в главное меню",reply_markup=kb.main_keyboard)
 
 
     
-@router.message(F.text == "Reset Context")
+@router.message(F.text == "Сбросить Контекст")
 async def reset(message:Message):
     user_id = str(message.from_user.id)
     await refil_requests_basic_sub(str(user_id))
@@ -264,13 +264,13 @@ async def reset(message:Message):
     await delete_all_messages(user_id)
     await message.answer(text = "✅ История отчищена.Можете продолжать пользоваться")
 
-@router.message(F.text == "Help")
+@router.message(F.text == "Помощь")
 async def help(message:Message):
     await message.answer(text = "Help")
 
 
 
-@router.message(F.text == "Support")
+@router.message(F.text == "Поддержка")
 async def support_handler(message:Message):
     
     await message.answer(text =  "Отправьте ваш вопрос вот этому пользователю : @kksndid_support")
@@ -278,7 +278,7 @@ async def support_handler(message:Message):
 
 
 
-@router.message(F.text == "Chat")
+@router.message(F.text == "Чат")
 async def chat_handler(message:Message):
     user_id = message.from_user.id
     await change_user_state(str(user_id),True)
@@ -654,7 +654,6 @@ async def answer_with_document(message: Message):
 
 
 
-# перевести бота на русский
+
 # добавить логичку со скидкой
 # написать оплату для отдельных запросов
-# написать обработку неизвестной команды 

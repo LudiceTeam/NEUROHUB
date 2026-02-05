@@ -4,13 +4,13 @@ import sys
 from config import PROJECT_ROOT
 
 main_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
-    [KeyboardButton(text = "Chat"),KeyboardButton(text = "Profile")],
-    [KeyboardButton(text = "Reset Context"),KeyboardButton(text = "Help"),KeyboardButton(text = "Support")]
+    [KeyboardButton(text = "Чат"),KeyboardButton(text = "Профиль")],
+    [KeyboardButton(text = "Сбросить Контекст"),KeyboardButton(text = "Помощь"),KeyboardButton(text = "Поддержка")]
 ])
 
 profile_key_borad = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
-    [KeyboardButton(text = "Subscribe"),KeyboardButton(text = "Buy Requests")],
-    [KeyboardButton(text = "Back")]
+    [KeyboardButton(text = "Подписаться"),KeyboardButton(text = "Купить Запросы")],
+    [KeyboardButton(text = "Назад")]
 ])
 
 
@@ -19,25 +19,25 @@ buy_sub_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
 ])
 
 back_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
-    [KeyboardButton(text = "Back")]
+    [KeyboardButton(text = "Назад")]
 ])
 
 buy_req_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
-    [KeyboardButton(text = "5 Requests"),KeyboardButton(text = "20 Requests")],
-    [KeyboardButton(text = "10 Requests"),KeyboardButton(text = "Back")]
+    [KeyboardButton(text = "5 Запросов"),KeyboardButton(text = "20 Запросов")],
+    [KeyboardButton(text = "10 Запросов"),KeyboardButton(text = "Назад")]
 ])
 
 inline_pay = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text = "Pay 250 ⭐",pay = True)]
+    [InlineKeyboardButton(text = "Заплатить 250 ⭐",pay = True)]
 ])
 
 
 subscrition_keyborad = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
     [KeyboardButton(text = "Premium"),KeyboardButton(text = "Basic")],
-    [KeyboardButton(text = "Back")]
+    [KeyboardButton(text = "Назад")]
 ])
 
 
 inline_pay_basic = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text = "Pay 199 ⭐",pay = True)]
+    [InlineKeyboardButton(text = "Заплатить 199 ⭐",pay = True)]
 ])
