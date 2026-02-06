@@ -547,6 +547,17 @@ def order_points(pts):
     rect[1] = pts[np.argmin(diff)]
     rect[3] = pts[np.argmax(diff)]
     return rect
+
+async def is_user_has_free_req(username:str) -> bool:
+    is_user_subbed_flag:bool = is_user_subbed(username)
+    if not is_user_subbed_flag:
+        #basic_sub = await is_user_subbed_basic(username)
+        user_free_req = await get_amount_of_zaproses(username)
+        if user_free_req == 0:
+            return True
+        return False
+    return False
+    
             
 @router.message(F.photo)
 async def answer_with_photo(message: Message):
@@ -555,6 +566,23 @@ async def answer_with_photo(message: Message):
     if user_state:
         user_id = message.from_user.id
         res_unsub: bool = await unsub_full_func(str(user_id))
+        
+        has_req:bool = await is_user_has_free_req(str(user_id))
+        if has_req:
+            basic_sub = await is_user_subbed_basic(str(user_id))
+            if basic_sub:
+                await think_message.delete()
+                await message.answer(text = "У вас на сегодня закончились запросы.Попробуйте снова завтра")
+                return
+            else:
+                await think_message.delete()
+                await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
+                return
+                
+                
+                 
+            
+        
         if res_unsub:
             await message.answer(text="Ваша подписка закончилась. Чтобы продолжить пользоваться премиум функционалом вам нужно снова ее оформить. Вы можете пользоваться ботом в пределах бесплатного тарифа. Благодарим за поддержку")
         
@@ -684,6 +712,20 @@ async def answer_with_document(message: Message):
         if res_unsub:
             await message.answer(text="Ваша подписка закончилась.Что бы продолжить пользоваться премиум функционалом вам нужно снова ее оформить.Вы можете пользоваться ботом в пределе бесплатного тарифа.Благодарим за поддержку")
         think_message = await message.answer("Думаю...")
+        
+        has_req:bool = await is_user_has_free_req(str(user_id))
+        if has_req:
+            basic_sub = await is_user_subbed_basic(str(user_id))
+            if basic_sub:
+                await think_message.delete()
+                await message.answer(text = "У вас на сегодня закончились запросы.Попробуйте снова завтра")
+                return
+            else:
+                await think_message.delete()
+                await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
+                return
+                
+        
         document = message.document
         
         filename = document.file_name.lower()
