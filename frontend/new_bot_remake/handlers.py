@@ -1,6 +1,6 @@
 from aiogram import Bot,Dispatcher,F,Router
 from aiogram.filters import CommandStart,Command
-from aiogram.types import Message,File,Video,PhotoSize,LabeledPrice,PreCheckoutQuery,ContentType,CallbackQuery
+from aiogram.types import Message,File,Video,PhotoSize,LabeledPrice,PreCheckoutQuery,ContentType,CallbackQuery,InlineKeyboardMarkup,InlineKeyboardButton
 import aiogram
 import keyboards as kb
 #from main import bot
@@ -181,6 +181,11 @@ async def premium_handler(message:Message):
     buy_sub_text = f"1) Стоимость: {price} звезд / 30 дней. 2) Лимит: безлимитные запросы 3) Бонус: любая следующая покупка в боте будет со скидкой 10%"
     prices = [LabeledPrice(label=f"{price} ⭐", amount=price)]
     
+    inline_pay = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text = f"Заплатить {price} ⭐",pay = True)]
+    ])
+    
+    
     await message.bot.send_invoice(
         chat_id=message.from_user.id,
         title="Premium",
@@ -189,7 +194,7 @@ async def premium_handler(message:Message):
         provider_token="410694247:TEST:48b50af2-4c6d-4c87-8d3f-6912d0d8c38a",
         prices=prices,
         currency="XTR",    
-        reply_markup=kb.inline_pay
+        reply_markup=inline_pay
     )
     
 @router.message(F.text == "Basic")
@@ -198,6 +203,10 @@ async def basic_sub_handler(message:Message):
     user_has_sale = await does_user_have_sale(str(message.from_user.id))
     if user_has_sale:
         price = await count_sale(price)
+        
+    inline_pay = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text = f"Заплатить {price} ⭐",pay = True)]
+    ])
     
     buy_sub_text = f"1) Стоимость: {price} звезд / 30 дней 2) Лимит: 25 запросов в день"
     prices = [LabeledPrice(label=f"{price} ⭐", amount=price)]
@@ -209,7 +218,7 @@ async def basic_sub_handler(message:Message):
     provider_token="410694247:TEST:48b50af2-4c6d-4c87-8d3f-6912d0d8c38a",
     prices=prices,
     currency="XTR",    
-    reply_markup=kb.inline_pay_basic 
+    reply_markup=inline_pay
 )
     
     
@@ -218,7 +227,7 @@ requests_buy_text = "Данная покупка предоставляет то
 
 @router.message(F.text == "Купить Запросы")
 async def buy_req_handler(message:Message):
-    await message.answer(text = "Выберете то количество запросов,которое хотите купить",reply_markup=kb.buy_req_keyboard) 
+    pass
 
 @router.message(F.text == "5 Запросов")
 async def buy_5_req_handler(message:Message):
