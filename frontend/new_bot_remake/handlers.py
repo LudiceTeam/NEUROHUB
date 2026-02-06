@@ -227,22 +227,76 @@ requests_buy_text = "Данная покупка предоставляет то
 
 @router.message(F.text == "Купить Запросы")
 async def buy_req_handler(message:Message):
-    pass
+    await message.answer(text = "Выберете то количество запросов, которое хотите купить.")
 
 @router.message(F.text == "5 Запросов")
 async def buy_5_req_handler(message:Message):
-    await message.answer(text = "Текст для покупки 5 запросов")
-    # инмвойс в звездах на покупку 5 ти запросов
+    price = 10
+    user_has_sale = await does_user_have_sale(str(message.from_user.id))
+    if user_has_sale:
+        price = await count_sale(price)
+        
+    inline_pay = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text = f"Заплатить {price} ⭐",pay = True)]
+    ])
+    
+    prices = [LabeledPrice(label=f"{price} ⭐", amount=price)]
+    await message.bot.send_invoice(
+    chat_id=message.from_user.id,
+    title="5 Запросов",
+    description=requests_buy_text,
+    payload="ludice_team_5",
+    provider_token="410694247:TEST:48b50af2-4c6d-4c87-8d3f-6912d0d8c38a",
+    prices=prices,
+    currency="XTR",    
+    reply_markup=inline_pay
+    )
     
 @router.message(F.text == "10 Запросов")
 async def buy_10_req_handler(message:Message):
-    await message.answer(text = "Текст для покупки 10 запросов")    
+    price = 19
+    user_has_sale = await does_user_have_sale(str(message.from_user.id))
+    if user_has_sale:
+        price = await count_sale(price)
+        
+    inline_pay = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text = f"Заплатить {price} ⭐",pay = True)]
+    ])
+    
+    prices = [LabeledPrice(label=f"{price} ⭐", amount=price)]
+    await message.bot.send_invoice(
+    chat_id=message.from_user.id,
+    title="10 Запросов",
+    description=requests_buy_text,
+    payload="ludice_team_10",
+    provider_token="410694247:TEST:48b50af2-4c6d-4c87-8d3f-6912d0d8c38a",
+    prices=prices,
+    currency="XTR",    
+    reply_markup=inline_pay
+    )
 
 @router.message(F.text == "20 Запросов")
 async def buy_20_req_handler(message:Message):
-    await message.answer(text = "Текст для покупки 20 запросов")
-    # инмвойс в звездах на покупку 20 ти запросов
-   
+    price = 37
+    user_has_sale = await does_user_have_sale(str(message.from_user.id))
+    if user_has_sale:
+        price = await count_sale(price)
+        
+    inline_pay = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text = f"Заплатить {price} ⭐",pay = True)]
+    ])
+    
+    prices = [LabeledPrice(label=f"{price} ⭐", amount=price)]
+    await message.bot.send_invoice(
+    chat_id=message.from_user.id,
+    title="20 Запросов",
+    description=requests_buy_text,
+    payload="ludice_team_20",
+    provider_token="410694247:TEST:48b50af2-4c6d-4c87-8d3f-6912d0d8c38a",
+    prices=prices,
+    currency="XTR",    
+    reply_markup=inline_pay
+    )
 
 
     
@@ -291,7 +345,47 @@ async def reset(message:Message):
 
 @router.message(F.text == "Помощь")
 async def help(message:Message):
-    await message.answer(text = "Help")
+    help_text = """🎯 Основные разделы (главное меню):
+
+    Чат — начать общение со мной. Вы можете задавать вопросы, обсуждать идеи, получать консультации.
+
+    Профиль — управление вашим аккаунтом: подписка, покупка запросов, статистика.
+
+    Сбросить контекст — очистить историю нашего диалога. Используйте, если хотите начать новый разговор «с чистого листа».
+
+    Помощь — это сообщение.
+
+    Поддержка — связаться с техподдержкой по вопросам работы бота.
+
+👤 Профиль:
+В разделе Профиль вы можете:
+
+    Подписаться — выбрать тариф (Basic или Premium) для расширения возможностей.
+
+    Купить Запросы — приобрести пакеты запросов, если у вас их не хватает.
+
+💎 Тарифы и запросы:
+
+    Basic — базовая подписка с увеличенным лимитом.
+
+    Premium — полный доступ с максимальными возможностями.
+
+    Запросы — можно купить отдельно пакетами по 5, 10 или 20 штук.
+
+💡 Советы:
+
+    Используйте кнопку «Назад», чтобы вернуться в предыдущее меню.
+
+    Чтобы оплатить подписку или запросы, нажмите на соответствующую кнопку в меню и следуйте инструкциям.
+
+    Если что-то пошло не так, попробуйте «Сбросить контекст» или обратитесь в «Поддержку».
+
+❓ Остались вопросы?
+Нажмите кнопку «Поддержка» в главном меню — наша команда поможет вам!
+
+Для навигации используйте кнопки меню 👇
+"""
+    await message.answer(text = help_text)
 
 
 
@@ -681,6 +775,6 @@ async def answer_with_document(message: Message):
 
 
 
-# написать оплату для отдельных запросов
+
 # сделать help 
 # добавить иконки к кнопкам
