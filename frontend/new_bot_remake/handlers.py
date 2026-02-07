@@ -19,7 +19,7 @@ from docx import Document
 from doc_handler import extract_text_from_docx_with_images
 from backend.database.chats_database.chats_core import write_message,get_all_user_messsages,delete_all_messages
 from backend.api import ask_chat_gpt
-from backend.database.core import create_deafault_user_data,remove_free_zapros,check_free_zapros_amount,get_amount_of_zaproses,subscribe,set_sub_bac_to_false,get_me,is_user_subbed,buy_zaproses,get_sub_date_end,subscribe_basic,unsub_basic,is_user_subbed_basic,get_last_ref_basic,refil_zap,upadate_last_ref_date
+from backend.database.core import create_deafault_user_data,remove_free_zapros,check_free_zapros_amount,get_amount_of_zaproses,subscribe,set_sub_bac_to_false,get_me,is_user_subbed,buy_zaproses,get_sub_date_end,subscribe_basic,unsub_basic,is_user_subbed_basic,get_last_ref_basic,refil_zap,upadate_last_ref_date,is_user_exists
 from datetime import timedelta,datetime
 from typing import List
 from backend.database.state_database.state_core import create_user_state,change_user_state,get_user_state
@@ -35,12 +35,30 @@ os.environ['PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK'] = 'True'
 
 @router.message(CommandStart())
 async def start_messsage(message:Message):
+    welcome_text = """Добро пожаловать в ChatGPT от LudiceTeam!
+
+Наш бот помогает быстро и удобно получать ответы на любые вопросы. Вы можете задавать текстовые запросы — и бот предоставит понятные и точные ответы.
+
+Но что ещё удобнее — не обязательно вручную вводить текст! Просто отправьте картинку с нужным текстом или задачей, а наш бот самостоятельно её «прочитает», распознает и решит за вас.
+
+Используйте нашего бота для учебы, работы и повседневных задач — он сэкономит ваше время и сделает процесс проще!"""
     user_name = message.from_user.username
     user_id = message.from_user.id
+    args = message.text.split()
+    if not await is_user_exists(str(user_id)):
+        if len(args) > 1:
+            referal_id = args[1]
+            if referal_id != str(user_id):
+                await buy_zaproses(str(referal_id))
+                await message.answer(text = f"🎉 Вы зашли по ссылке друга!")
+    else:
+        await message.answer(text = welcome_text,reply_markup=kb.main_keyboard)# вставить сюда норм текст            
+    
     await create_deafault_user_data(str(user_id))
     await create_user_state(str(user_id))
     await cretae_user_sale_table(str(user_id))
-    await message.answer("Welcome",reply_markup=kb.main_keyboard)# вставить сюда норм текст
+    
+   
     
 async def transform_date_to_int(date:str) -> int:
         dt:str = ""
