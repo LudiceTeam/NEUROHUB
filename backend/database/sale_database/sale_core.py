@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from backend.database.sale_database.sale_models import metadata_obj,sale_table
 import asyncio
 import atexit
+#backend.database.sale_database.
 
 
 
@@ -41,6 +42,14 @@ async def create_table():
     async with async_engine.begin() as conn:
         await conn.run_sync(metadata_obj.create_all)
 
+async def get_all_data():
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(sale_table)
+            res = await conn.execute(stmt)
+            return res.fetchall()
+        except Exception as e:
+            raise Exception(f"Error : {e}")  
 
 
 async def is_user_exists(username:str) -> bool:
@@ -100,4 +109,16 @@ async def give_referal_sub(username:str):
                 await conn.execute(stmt)
             except Exception as e:
                 raise Exception(f"Error : {e}")
-                       
+
+async def does_user_have_referal_sub(username:str) -> bool:
+     async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(sale_table.c.referal_sub).where(sale_table.c.username == username)
+            res = await conn.execute(stmt)
+            data = res.scalar_one_or_none()
+            if data is not None:
+                return data
+            return False
+        except Exception as e:
+            raise Exception(f"Error : {e}") 
+
