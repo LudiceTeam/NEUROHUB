@@ -23,7 +23,7 @@ from backend.database.core import create_deafault_user_data,remove_free_zapros,c
 from datetime import timedelta,datetime
 from typing import List
 from backend.database.state_database.state_core import create_user_state,change_user_state,get_user_state
-from backend.database.sale_database.sale_core import cretae_user_sale_table,change_to_sale,does_user_have_sale
+from backend.database.sale_database.sale_core import cretae_user_sale_table,change_to_sale,does_user_have_sale,give_referal_sub,does_user_have_referal_sub
 import time
 from io import BytesIO 
 
@@ -61,7 +61,19 @@ async def start_messsage(message:Message):
     await create_user_state(str(user_id))
     await cretae_user_sale_table(str(user_id))
     
-   
+
+async def time_to_give_free_referal_sub(username:str) -> bool:
+    user_friends_invited:int = await get_user_referal_count(username)
+    if user_friends_invited >= 5:
+        recieved_sub = await does_user_have_referal_sub(username)
+        if recieved_sub:
+            return False
+        else:
+            await give_referal_sub(username)
+            await subscribe_basic(username)
+            return True
+    else:
+        return False    
     
 async def transform_date_to_int(date:str) -> int:
         dt:str = ""
@@ -125,6 +137,16 @@ async def profile_handler(message:Message):
     res_unsub:bool = await unsub_full_func(str(user_id))
     if res_unsub:
         await message.answer(text = "Ваша подписка закончилась.Что бы продолжить пользоваться премиум функционалом вам нужно снова ее оформить.Вы можете пользоваться ботом в пределе бесплатного тарифа.Благодарим за поддержку")
+    
+    free_ref_sub = await  time_to_give_free_referal_sub(str(user_id))
+    if free_ref_sub:
+        ref_text = """✅ Basic подписка получена!
+✅ Награда за 5 приглашённых друзей
+✅ Активна 30 дней"""
+        await message.answer(text = ref_text)    
+        
+        
+        
     user_data = await get_me(str(user_id))
     user_data[str(user_id)] = user_name
     
@@ -209,6 +231,13 @@ https://t.me/character_ai_ludice_team_bot?start={user_id}
 
 🚀 **Начните приглашать прямо сейчас!**"""
     await message.answer(text = referal_text)
+    free_ref_sub = await  time_to_give_free_referal_sub(str(user_id))
+    if free_ref_sub:
+        ref_text = """✅ Basic подписка получена!
+✅ Награда за 5 приглашённых друзей
+✅ Активна 30 дней"""
+        await message.answer(text = ref_text)    
+        
         
 
 @router.message(F.text == "Подписаться")
@@ -453,6 +482,13 @@ async def chat_handler(message:Message):
     res_unsub:bool = await unsub_full_func(str(user_id))
     if res_unsub:
         await message.asnwer(text = "Ваша подписка закончилась.Что бы продолжить пользоваться премиум функционалом вам нужно снова ее оформить.Вы можете пользоваться ботом в пределе бесплатного тарифа.Благодарим за поддержку")
+    free_ref_sub = await  time_to_give_free_referal_sub(str(user_id))
+    if free_ref_sub:
+        ref_text = """✅ Basic подписка получена!
+✅ Награда за 5 приглашённых друзей
+✅ Активна 30 дней"""
+        await message.answer(text = ref_text)    
+        
    
     await message.answer("Привет я твой помошник ChatGPT от LudiceTeam в Telegram") # написать норм тектс для бота  типо просто первое сообщение в чате
 
@@ -465,6 +501,15 @@ async def answer_messages(message:Message):
             res_unsub:bool = await unsub_full_func(str(user_id))
             if res_unsub:
                 await message.asnwer(text = "Ваша подписка закончилась.Что бы продолжить пользоваться премиум функционалом вам нужно снова ее оформить.Вы можете пользоваться ботом в пределе бесплатного тарифа.Благодарим за поддержку")
+                
+            free_ref_sub = await  time_to_give_free_referal_sub(str(user_id))
+            if free_ref_sub:
+                ref_text = """✅ Basic подписка получена!
+        ✅ Награда за 5 приглашённых друзей
+        ✅ Активна 30 дней"""
+                await message.answer(text = ref_text)    
+                    
+            
             think_message = await message.answer("Думаю...")
             user_messages = await get_all_user_messsages(str(user_id))
             is_user_subbed_ = await is_user_subbed(str(user_id))
@@ -626,7 +671,15 @@ async def answer_with_photo(message: Message):
                 await think_message.delete()
                 await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
                 return
-                
+        
+        free_ref_sub = await  time_to_give_free_referal_sub(str(user_id))
+        if free_ref_sub:
+            ref_text = """✅ Basic подписка получена!
+    ✅ Награда за 5 приглашённых друзей
+    ✅ Активна 30 дней"""
+            await message.answer(text = ref_text)    
+            
+                    
                 
                  
             
@@ -772,7 +825,14 @@ async def answer_with_document(message: Message):
                 await think_message.delete()
                 await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
                 return
-                
+            
+        free_ref_sub = await  time_to_give_free_referal_sub(str(user_id))
+        if free_ref_sub:
+            ref_text = """✅ Basic подписка получена!
+    ✅ Награда за 5 приглашённых друзей
+    ✅ Активна 30 дней"""
+            await message.answer(text = ref_text)    
+            
         
         document = message.document
         
@@ -868,4 +928,3 @@ async def answer_with_document(message: Message):
 
 
 # добавить иконки к кнопкам
-# сделать новую базу данных с хранением данных о том что пользоватеть получил подписку или написать в sale core
