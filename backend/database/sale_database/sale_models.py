@@ -6,5 +6,6 @@ sale_table = Table(
     "sale_table",
     metadata_obj,
     Column("username",String,primary_key= True),
-    Column("sale",Boolean)
+    Column("sale",Boolean),
+    Column("referal_sub",Boolean)
 )

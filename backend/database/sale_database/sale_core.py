@@ -60,7 +60,8 @@ async def cretae_user_sale_table(username:str):
             try:
                 stmt = sale_table.insert().values(
                     username = username,
-                    sale = False
+                    sale = False,
+                    referal_sub = False
                 )
                 await conn.execute(stmt)
             except Exception as e:
@@ -87,4 +88,16 @@ async def does_user_have_sale(username:str) -> bool :
             return False
         except Exception as e:
             raise Exception(f"Error : {e}") 
+        
+        
+async def give_referal_sub(username:str):
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = sale_table.update().where(sale_table.c.username == username).values(
+                    referal_sub = True
+                )
+                await conn.execute(stmt)
+            except Exception as e:
+                raise Exception(f"Error : {e}")
                        
