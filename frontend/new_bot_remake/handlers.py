@@ -490,7 +490,7 @@ async def chat_handler(message:Message):
         await message.answer(text = ref_text)    
         
    
-    await message.answer("Привет я твой помошник ChatGPT от LudiceTeam в Telegram") # написать норм тектс для бота  типо просто первое сообщение в чате
+    await message.answer("Привет, я твой помощник ChatGPT от LudiceTeam в Telegram") # написать норм тектс для бота  типо просто первое сообщение в чате
 
 @router.message(F.text & ~F.command)
 async def answer_messages(message:Message):
