@@ -581,7 +581,7 @@ async def ask_chat_gpt(request: str) -> str:
     """Асинхронная версия через официальный SDK"""
     try:
         # Ограничиваем длину запроса
-        request = request[:3000]
+        request = request[:10000]
         
         response = await client.responses.create(
             model="gpt-5-nano", 
