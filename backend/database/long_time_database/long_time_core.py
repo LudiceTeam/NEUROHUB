@@ -61,4 +61,13 @@ async def is_user_exists(username:str)  -> bool:
             raise Exception(f"Error : {e}")      
 
 async def default_long_time(username:str):
-    pass       
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = main_table.insert().values(
+                    username = username,
+                    last_date = ""
+                )
+                await conn.execute(stmt)
+            except Exception as e:
+                raise Exception(f"Error : {e}")     
