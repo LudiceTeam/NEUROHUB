@@ -650,7 +650,7 @@ async def answer_messages(message:Message):
                         await think_message.delete()
                     except Exception as e:
                         raise Exception(f"Error : {e}")
-                    time.sleep(0.5)
+                    await asyncio.sleep(0.5)
                     
                     
                     if len(response) > 4096:
@@ -666,7 +666,7 @@ async def answer_messages(message:Message):
                     await think_message.delete()
                 except Exception as e:
                     raise Exception(f"Error : {e}")
-                time.sleep(0.5)
+                await asyncio.sleep(0.5)
                 
                 
                 if len(response) > 4096:
@@ -832,7 +832,7 @@ async def answer_with_photo(message: Message):
       
         result_text = await ocr.extract_text(image_bytes)
         
-        await message.answer(text = f"Вот текст с картинки  : {result_text}")
+        #await message.answer(text = f"Вот текст с картинки  : {result_text}")
         
         if not result_text:
             await message.answer(text="Текст с фотографии не извлечен")
@@ -862,7 +862,7 @@ async def answer_with_photo(message: Message):
                     await think_message.delete()
                 except Exception as e:
                     raise Exception(f"Error: {e}")
-                time.sleep(0.5)
+                await asyncio.sleep(0.5)
                 
                 
                 if len(response) > 4096:
@@ -880,7 +880,7 @@ async def answer_with_photo(message: Message):
                 await think_message.delete()
             except Exception as e:
                 raise Exception(f"Error: {e}")
-            time.sleep(0.5)
+            await asyncio.sleep(0.5)
             
             if len(response) > 4096:
                     for i in range(0,len(response),4096):
@@ -984,7 +984,7 @@ async def answer_with_document(message: Message):
                 os.unlink(file_path)
             
             if text == "" or not text or text is None:
-                await message.asnwer(text="Текст с файла не был извлечен")   
+                await message.answer(text="Текст с файла не был извлечен")   
                 return 
                 
             is_user_subbed_ = await is_user_subbed(str(user_id))
@@ -1007,7 +1007,7 @@ async def answer_with_document(message: Message):
                     except Exception as e:
                         raise Exception(f"Error : {e}")
                     
-                    time.sleep(0.5)
+                    await asyncio.sleep(0.5)
                     if len(response) > 4096:
                         for i in range(0,len(response),4096):
                             part = response[i:i + 4096]
@@ -1023,7 +1023,7 @@ async def answer_with_document(message: Message):
                 except Exception as e:
                     raise Exception(f"Error : {e}")
                 
-                time.sleep(0.5)
+                await asyncio.sleep(0.5)
                 if len(response) > 4096:
                     for i in range(0,len(response),4096):
                         part = response[i:i + 4096]
