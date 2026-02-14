@@ -31,6 +31,9 @@ import asyncio
 from asyncio import Queue
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from concurrent.futures import ThreadPoolExecutor
+import re
+import pytesseract
 
 router = Router()
 gpt_queue = Queue(maxsize=100)
@@ -766,7 +769,9 @@ async def is_user_has_free_req(username:str) -> bool:
             return True
         return False
     return False
+
     
+
             
 @router.message(F.photo)
 async def answer_with_photo(message: Message):
@@ -807,21 +812,17 @@ async def answer_with_photo(message: Message):
          "Благодарим за поддержку!")
         
         think_message = await message.answer("Думаю...")
-        photo = message.photo[-1]
         user_messages = await get_all_user_messsages(str(user_id))
-        file = await message.bot.get_file(photo.file_id)
         
-       
-        file_bytes_io = BytesIO()
-        await message.bot.download_file(file.file_path, file_bytes_io)
-        file_bytes_io.seek(0)
-        image_bytes = file_bytes_io.read()
-        
+        photo = message.photo[-1]
+        file_info = await message.bot.get_file(photo.file_id)
+        image_bytes = await message.bot.download_file(file_info.file_path)
+        image_bytes = image_bytes.getvalue()
        
       
         result_text = await extract_text_from_image_new(image_bytes)
         
-       # await message.answer(text = f"Вот текст с картинки  : {result_text}")
+        await message.answer(text = f"Вот текст с картинки  : {result_text}")
         
         if not result_text:
             await message.answer(text="Текст с фотографии не извлечен")
@@ -829,25 +830,7 @@ async def answer_with_photo(message: Message):
             return
         
       
-        try:
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
-                await message.bot.download_file(file.file_path, tmp_file.name)
-                results = reader.readtext(tmp_file.name)
-            os.unlink(tmp_file.name)
-            
-            
-            if results:
-                text_lines = []
-                for (bbox, text, prob) in results:
-                    if prob > 0.3:
-                        text_lines.append(text)
-                old_method_text = "\n".join(text_lines)
-                
-               
-                if len(old_method_text) > len(result_text):
-                    result_text = old_method_text
-        except:
-            pass 
+        
         
         is_user_subbed_ = await is_user_subbed(str(user_id))
         
@@ -862,7 +845,7 @@ async def answer_with_photo(message: Message):
                     await think_message.delete()
                     await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
             else:
-                full_text: str = str(message.text) + "\n" + (message.caption or "") + "\n" + result_text
+                full_text: str = str(message.text) + "\n" + (str(message.caption) or "") + "\n" + result_text
                 response = await add_to_queue(str(user_id),f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages},это его история сообщений что бы ты его понимал.Ты отвечаешь кратко и по делу. А вот его текущие сообщение : {full_text},ты должен отвечать на его текущее сообщение основываясь на его истории")
                 await remove_free_zapros(str(user_id))
                 try:
@@ -991,7 +974,8 @@ async def answer_with_document(message: Message):
                 os.unlink(file_path)
             
             if text == "" or not text or text is None:
-                await message.asnwer(text="Текст с данного файда не был извлечен")    
+                await message.asnwer(text="Текст с файла не был извлечен")   
+                return 
                 
             is_user_subbed_ = await is_user_subbed(str(user_id))
             if not is_user_subbed_:
