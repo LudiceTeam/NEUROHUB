@@ -636,7 +636,7 @@ async def answer_messages(message:Message):
                         await think_message.delete()
                         await message.answer(text = "У вас не осталось бесплатных запросов.Купить подписку вы можете перейдя в профиль")
                 else:
-                    response = await add_to_queue(str(user_id),f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages},это его история сообщений что бы ты его понимал.Ты отвечаешь кратко и по делу. А вот его текущие сообщение : {str(message.text)},ты должен отвечать на его текущее сообщение основываясь на его истории")
+                    response = await add_to_queue(str(user_id),f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages},это его история сообщений что бы ты его понимал.Ты отвечаешь кратко и по делу. А вот его текущие сообщение : {str(message.text)},ты должен отвечать на его текущее сообщение основываясь на его истории.Учти что ты пишешь сообщение в Telegramm поэтому если будет код то оформи его правильно.")
                     await remove_free_zapros(str(user_id))
                     try:
                         await think_message.delete()
@@ -653,7 +653,7 @@ async def answer_messages(message:Message):
                         await message.answer(text = response)        
                     await write_message(str(user_id),str(message.text),response)
             else:
-                response = await add_to_queue(str(user_id),f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages},это его история сообщений что бы ты его понимал.Ты отвечаешь кратко и по делу. А вот его текущие сообщение : {str(message.text)},ты должен отвечать на его текущее сообщение основываясь на его истории")
+                response = await add_to_queue(str(user_id),f"Вот все сообщение пользователя что бы тебе было легче его понимать : {user_messages},это его история сообщений что бы ты его понимал.Ты отвечаешь кратко и по делу. А вот его текущие сообщение : {str(message.text)},ты должен отвечать на его текущее сообщение основываясь на его истории.Учти что ты пишешь сообщение в Telegramm поэтому если будет код то оформи его правильно.")
                 try:
                     await think_message.delete()
                 except Exception as e:
@@ -753,7 +753,7 @@ def order_points(pts):
     return rect
 
 async def is_user_has_free_req(username:str) -> bool:
-    is_user_subbed_flag:bool = is_user_subbed(username)
+    is_user_subbed_flag:bool = await is_user_subbed(username)
     if not is_user_subbed_flag:
         #basic_sub = await is_user_subbed_basic(username)
         user_free_req = await get_amount_of_zaproses(username)
@@ -1030,7 +1030,7 @@ async def answer_with_document(message: Message):
                         part = response[i:i + 4096]
                         await message.answer(text = part)
                 else:
-                    await message.asnwer(text = response)      
+                    await message.answer(text = response)      
                 await write_message(str(user_id), str(full_text), response)
                     
         except Exception as e:
