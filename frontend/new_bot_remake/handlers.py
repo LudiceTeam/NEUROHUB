@@ -848,7 +848,7 @@ async def answer_with_photo(message: Message):
          
         #await message.answer(text = f"Вот текст с картинки  : {result_text}")
         
-        if not result_text:
+        if not result_text or result_text == "":
             await message.answer(text="Текст с фотографии не извлечен")
             await think_message.delete()
             return

@@ -56,9 +56,7 @@ async def is_user_exists(username:str)  -> bool:
             stmt = select(main_table.c.username).where(main_table.c.username == username)
             res = await conn.execute(stmt)
             data = res.scalar_one_or_none()
-            if data is not None:
-                return data == username
-            return False
+            return data is not None
         except Exception as e:
             raise Exception(f"Error : {e}")      
 
