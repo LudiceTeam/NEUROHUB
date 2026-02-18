@@ -108,12 +108,10 @@ async def buy_zaproses(username:str,amount:int) -> bool:
     async with AsyncSession(async_engine) as conn:
         try:
             async with conn.begin():
-                stmt = select(table.c.zap).where(table.c.username == username)
-                res = await conn.execute(stmt)
-                data = res.scalar_one_or_none()
-                data_res = int(data) if data is not None else 0
-                update_stmt = table.update().where(table.c.username == username).values(zap = int(data_res) + amount)
-                await conn.execute(update_stmt)
+                stmt = (table.update().where(table.c.username == username).values(
+                    zap = table.c.zap + amount
+                ))
+                await conn.execute(stmt)
                 return True
         except Exception as e:
             raise Exception(f"Error : {e}")
@@ -301,14 +299,12 @@ async def add_referal(username:str):
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             try:
-                stmt = select(table.c.referal_count).where(table.c.username == username)
-                res = await conn.execute(stmt)
-                data = res.scalar_one_or_none()
-                referal_c = int(data) if data is not None else 0
-                update_stmt = table.update().where(table.c.username == username).values(
-                    referal_count = referal_c + 1
+                stmt = (
+                    table.update()
+                    .where(table.c.username == username)
+                    .values(referal_count=table.c.referal_count + 1)
                 )
-                await conn.execute(update_stmt)
+                await conn.execute(stmt)
             except Exception as e:
                 raise Exception(f"Error : {e}")
 
