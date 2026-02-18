@@ -77,15 +77,11 @@ async def remove_free_zapros(username:str) -> bool:
     async with AsyncSession(async_engine) as conn:
             try:
                 async with conn.begin():
-                        stmt = select(table.c.zap).where(table.c.username == username)
-                        res = await conn.execute(stmt)
-                        data = res.scalar_one_or_none()
-                        count = int(data) if data is not None else 0
-                        if count != 0:
-                            count -= 1
-                        update_stmt = table.update().where(table.c.username == username).values(zap = count) 
-                        await conn.execute(update_stmt)
-                        return True   
+                       stmt  = (table.update().where(table.c.username == username).where(table.c.zap >= 1).values(
+                           zap = table.c.zap - 1
+                       ))
+                       await conn.execute(stmt)
+                       return True
             except Exception as e:
                 raise Exception(f"Error : {e}")       
        
