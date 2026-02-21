@@ -992,28 +992,15 @@ async def answer_with_document(message: Message):
         file_info = await message.bot.get_file(document.file_id)
         
         
-        user_messages = await get_all_user_messsages(str(message.from_user.id))
-        full_text: str = str(message.text) + "\n" + str(message.caption) + "\n" + text
-        
-        promt = f"""Ты — ассистент, который помогает пользователю, учитывая контекст переписки.
-
-История сообщений пользователя (для понимания стиля и контекста):
-{user_messages}
-
-Текущее сообщение пользователя (на которое нужно ответить):
-{full_text}
-
-Задача: Ответь на текущее сообщение пользователя, опираясь на историю переписки. Сохраняй релевантность и последовательность диалога."""
-        
-        
         with tempfile.NamedTemporaryFile(delete=False, suffix=Path(filename).suffix) as tmp_fi:
             await message.bot.download_file(file_info.file_path,tmp_fi.name)
             file_path = tmp_fi.name
-        
+          
         try:
+              
             if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
                 text = await read_text_from_image(file_path)
-                
+                    
             elif file_path.endswith('.pdf'):
                 text = await read_pdf(file_path)
                 
@@ -1033,6 +1020,27 @@ async def answer_with_document(message: Message):
             if text == "" or not text or text is None:
                 await message.answer(text="Текст с файла не был извлечен")   
                 return 
+        except Exception as e:
+            print(f"Error : {e}")
+    
+        
+        user_messages = await get_all_user_messsages(str(message.from_user.id))
+        full_text: str = str(message.text) + "\n" + str(message.caption) + "\n" + text
+        
+        promt = f"""Ты — ассистент, который помогает пользователю, учитывая контекст переписки.
+
+История сообщений пользователя (для понимания стиля и контекста):
+{user_messages}
+
+Текущее сообщение пользователя (на которое нужно ответить):
+{full_text}
+
+Задача: Ответь на текущее сообщение пользователя, опираясь на историю переписки. Сохраняй релевантность и последовательность диалога."""
+        
+        
+    
+        
+        try:
                 
             is_user_subbed_ = await is_user_subbed(str(user_id))
             if not is_user_subbed_:
