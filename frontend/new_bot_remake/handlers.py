@@ -984,6 +984,16 @@ async def answer_with_document(message: Message):
             
         
         document = message.document
+        MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
+    
+        if document.file_size > MAX_FILE_SIZE:
+            await message.answer(
+                f"❌ Файл слишком большой!\n"
+                f"📁 Размер: {document.file_size / 1024 / 1024:.1f}MB\n"
+                f"⚠️ Максимум: 20MB\n"
+                f"💡 Попробуй сжать файл или отправь часть"
+            )
+            return
         
         filename = document.file_name.lower()
         
