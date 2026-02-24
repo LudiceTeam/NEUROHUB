@@ -43,7 +43,7 @@ router = Router()
 gpt_queue = Queue(maxsize=100)
 
 
-reader = easyocr.Reader(["en","ru"],gpu = False) # будут норм сервера поставить True
+#reader = easyocr.Reader(["en","ru"],gpu = False) # будут норм сервера поставить True
 os.environ['PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK'] = 'True'
 
 @router.message(CommandStart())
@@ -563,7 +563,9 @@ async def add_to_queue(user_id:str,request:str) -> str:
         future.cancel()
         return "⏱️ Превышено время ожидания"
             
-    
+@router.message(F.text == "Выбрать Модель")
+async def choose_model_handler(message:Message):
+    pass
 
 @router.message(F.text == "Чат")
 async def chat_handler(message:Message):
@@ -812,6 +814,8 @@ async def answer_with_photo(message: Message):
         await update_last_time(str(user_id))
         res_unsub: bool = await unsub_full_func(str(user_id))
         
+        think_message = await message.answer("Думаю...")
+        
         has_req:bool = await is_user_has_free_req(str(user_id))
         if has_req:
             basic_sub = await is_user_subbed_basic(str(user_id))
@@ -842,7 +846,7 @@ async def answer_with_photo(message: Message):
          "🆓 Вы можете пользоваться ботом в пределах бесплатного тарифа.\n\n"
          "Благодарим за поддержку!")
         
-        think_message = await message.answer("Думаю...")
+        
         user_messages = await get_all_user_messsages(str(user_id))
         
         photo = message.photo[-1]
@@ -928,10 +932,7 @@ async def answer_with_photo(message: Message):
         await message.answer(text="❌ Команда не распознана. Чтобы включить режим чата, нажмите кнопку «Чат».")        
             
             
-            
-async def read_text_from_image(file_path:str) -> str:
-    results = reader.readtext(file_path,detail = 0,paragraph=True)
-    return "\n".join(results) if results else ""
+
 
 async def read_pdf(path:str) -> str:
     all_text = []
@@ -940,7 +941,7 @@ async def read_pdf(path:str) -> str:
         for i,image in enumerate(images):
             with tempfile.NamedTemporaryFile(delete = False,suffix=".jpg") as tmp_file:
                 image.save(tmp_file.name,"JPEG")
-                page_text = await read_text_from_image(tmp_file.name)
+                page_text = await ocr.extract_text_from_path(tmp_file.name)
                 if page_text:
                     all_text.append(page_text)
                 os.unlink(tmp_file.name)    
@@ -1011,7 +1012,7 @@ async def answer_with_document(message: Message):
         try:
               
             if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
-                text = await read_text_from_image(file_path)
+                text = await ocr.extract_text_from_path(file_path)
                     
             elif file_path.endswith('.pdf'):
                 text = await read_pdf(file_path)
