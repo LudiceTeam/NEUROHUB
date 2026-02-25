@@ -77,9 +77,17 @@ async def count_all_users() -> int:
         try:
             stmt = select(func.count()).select_from(table)
             res = await conn.execute(stmt)
-            return res.scalar_one_or_none()
+            data = res.scalar_one_or_none()
+            return int(data) if data is not None else 0 
         except Exception as e:
-            raise Exception(f"Error : {e}")             
+            raise Exception(f"Error : {e}")   
+
+async def get_all_usernames() -> List[str]:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            pass
+        except Exception as e:
+            raise Exception(f"Error : {e}")                  
 
 async def remove_free_zapros(username:str) -> bool:
     if not await is_user_exists(username):
