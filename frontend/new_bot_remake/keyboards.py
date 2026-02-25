@@ -38,3 +38,8 @@ subscrition_keyborad = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[
 inline_pay_basic = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text = "Заплатить 199 ⭐",pay = True)]
 ])
+
+
+choose_ai_keyboard = InlineKeyboardMarkup(inline_keyboard =  [
+    [InlineKeyboardButton(text = "Gemini 3",callback_data = "google/gemini-3-flash-preview"),InlineKeyboardButton(text = "Gemini 2",callback_data="google/gemini-2.5-flash")]
+])
