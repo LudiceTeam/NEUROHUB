@@ -608,12 +608,19 @@ async def get_user_models_keyboard(user_id:str):
         ("openai/gpt-3.5-turbo", "GPT-3.5 Turbo"),
         ("xai/grok-1", "Grok 1"),
         ("xai/grok-1.5", "Grok 1.5"),
-        ("deepseek/deepseek-chat", "🧠 DeepSeek Chat"),
+        ("deepseek/deepseek-chat", "DeepSeek Chat"),
     ]
     user_model = await get_user_model_name(user_id)
     for data,model_button_text in models:
         if user_model == data:
-            pass
+            button_new_text = f"✅ {model_button_text}"
+        else:
+            button_new_text = model_button_text
+        builder.button(text=button_new_text, callback_data=data)
+    builder.adjust(2, 2, 2, 2, 2, 2)
+    
+    return builder.as_markup()
+
        
             
 @router.message(Command("ai_mode"))
