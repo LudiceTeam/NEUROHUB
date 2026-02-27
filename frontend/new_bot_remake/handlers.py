@@ -600,6 +600,20 @@ async def add_to_queue(user_id:str,request:str) -> str:
 
 async def get_user_models_keyboard(user_id:str):
     builder = InlineKeyboardBuilder()
+    models = [
+        ("google/gemini-3-flash-preview", "Gemini 3 Flash"),
+        ("google/gemini-2.5-flash", "Gemini 2.5 Flash"),
+        ("openai/gpt-4", "GPT-4"),
+        ("openai/gpt-4-turbo", " GPT-4 Turbo"),
+        ("openai/gpt-3.5-turbo", "GPT-3.5 Turbo"),
+        ("xai/grok-1", "Grok 1"),
+        ("xai/grok-1.5", "Grok 1.5"),
+        ("deepseek/deepseek-chat", "🧠 DeepSeek Chat"),
+    ]
+    user_model = await get_user_model_name(user_id)
+    for data,model_button_text in models:
+        if user_model == data:
+            pass
        
             
 @router.message(Command("ai_mode"))
