@@ -41,6 +41,8 @@ from backend.database.long_time_database.long_time_core import default_long_time
 from backend.database.ai_choose_database.ai_core import get_user_model_name,create_default_user_model_name,change_user_model_name
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from backend.database.nano_banana.nano_core import create_default_user_data_nano,minus_one_req_nano,get_user_req_nano,refil_user_amount_nano
+import base64
+
 
 router = Router()
 gpt_queue = Queue(maxsize=100)
@@ -605,12 +607,38 @@ client = AsyncOpenAI(
     max_retries=2
 )
 
-async def ask_chat_gpt(request: str,user_id:str) -> str:
+async def ask_chat_gpt(request: str,user_id:str) -> str | bytes:
     try:
         request = request[:10000]
         
         user_model = await get_user_model_name(user_id)
         
+        if user_model == "google/gemini-2.5-flash-image-preview:free":
+            response = await client.chat.completions.create(
+            model=user_model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": request
+                        }
+                    ]
+                }
+            ],
+            extra_body={
+                "modalities": ["image", "text"],  # КЛЮЧЕВОЙ ПАРАМЕТР!
+            }
+        )
+            message = response.choices[0].message
+            if hasattr(message, 'images') and message.images:
+                img_data = message.images[0]
+                base64_str = img_data.split(',')[1]
+                image_bytes = base64.b64decode(base64_str)
+                return image_bytes
+            return f"🤔 Нет изображения в ответе. Текст: {text_result}"
+            
         response = await client.chat.completions.create(  # <-- ВАЖНО: используем chat.completions
             model=user_model,  # <-- ПРАВИЛЬНОЕ имя модели
             messages=[
