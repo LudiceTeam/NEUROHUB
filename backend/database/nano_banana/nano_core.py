@@ -79,11 +79,30 @@ async def minus_one_req(username:str):
             raise Exception(f"Error : {e}")
 
 async def get_user_req(username:str) -> int:
-    pass
+    if not await is_user_exists(username):
+        return
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(nano_table.c.req).where(nano_table.c.username == username)
+            res = await conn.execute(stmt)
+            data = res.scalar_one_or_none()
+            return int(data) if data is not None else 0
+        except Exception as e:
+            raise Exception(f"Error : {e}")
 
 
 async def refil_user_amount(username:str,amount:int):
-    pass        
+    if not await is_user_exists(username):
+        return
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = nano_table.update().where(nano_table.c.username == username).values(
+                    req = amount
+                )
+                await conn.execute(stmt)
+            except Exception as e:
+                raise Exception(f"Error : {e}")      
         
 
    
