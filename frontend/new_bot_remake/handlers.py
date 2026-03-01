@@ -211,12 +211,23 @@ async def profile_handler(message:Message):
             return user_data["Date of subscribtion to end"]
         else:
             return "Подписка не активирована" 
+    
+    async def get_nano_banana_text() -> str:
+        req_amount_nano:int = await get_user_req_nano(str(user_id))
+        if user_subbed:
+            return f"{req_amount_nano}/15"
+        elif user_basic_sub:
+            return f"{req_amount_nano}/10"
+        else:
+            return f"{req_amount_nano}/5"    
             
     
     new_profile_desc = f"""
         Профиль @{user_data[str(user_id)]}:
         
 Запросов осталось: {await get_request_text()}
+
+Запросы к Nano Banana: {await get_nano_banana_text()}
 
 Статус подписки: {await get_user_subscribtion_type()}
 
