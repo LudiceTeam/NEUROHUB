@@ -766,7 +766,7 @@ async def answer_messages(message:Message):
                     await think_message.delete()
                 except Exception as e:
                     raise Exception(f"Error : {e}")
-                await asyncio.sleep(0.5)
+                #await asyncio.sleep(0.5)
                 
                 
                 if len(response) > 4096:
@@ -782,7 +782,7 @@ async def answer_messages(message:Message):
                 await think_message.delete()
             except Exception as e:
                 raise Exception(f"Error : {e}")
-            await asyncio.sleep(0.5)
+           # await asyncio.sleep(0.5)
             
             
             if len(response) > 4096:
@@ -981,7 +981,7 @@ async def answer_with_photo(message: Message):
             await think_message.delete()
         except Exception as e:
             raise Exception(f"Error: {e}")
-        await asyncio.sleep(0.5)
+        #await asyncio.sleep(0.5)
         
         
         if len(response) > 4096:
@@ -999,7 +999,7 @@ async def answer_with_photo(message: Message):
             await think_message.delete()
         except Exception as e:
             raise Exception(f"Error: {e}")
-        await asyncio.sleep(0.5)
+        #await asyncio.sleep(0.5)
         
         if len(response) > 4096:
                 for i in range(0,len(response),4096):
@@ -1149,7 +1149,7 @@ async def answer_with_document(message: Message):
             except Exception as e:
                 raise Exception(f"Error : {e}")
             
-            await asyncio.sleep(0.5)
+            #await asyncio.sleep(0.5)
             if len(response) > 4096:
                 for i in range(0,len(response),4096):
                     part = response[i:i + 4096]
@@ -1165,7 +1165,7 @@ async def answer_with_document(message: Message):
             except Exception as e:
                 raise Exception(f"Error : {e}")
             
-            await asyncio.sleep(0.5)
+            #await asyncio.sleep(0.5)
             if len(response) > 4096:
                 for i in range(0,len(response),4096):
                     part = response[i:i + 4096]
