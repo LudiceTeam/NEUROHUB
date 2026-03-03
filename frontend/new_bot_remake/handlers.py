@@ -80,7 +80,7 @@ async def start_messsage(message:Message):
     await create_user_state(str(user_id))
     await cretae_user_sale_table(str(user_id))
     await create_default_user_model_name(str(user_id))
-    await create_default_user_data_nano(str(user_id))
+    await create_default_user_data_nano(str(user_id),5)
 
 async def time_to_give_free_referal_sub(username:str) -> bool:
     user_friends_invited:int = await get_user_referal_count(username)
@@ -152,7 +152,16 @@ async def unsub_full_func(username:str) -> bool:
         return False
             
 
-
+#Функция создает данные в таблице Nano для пользователей которые зарегались в боте до обновление 1.1
+async def create_user_data_in_nano_database(username:str):
+    user_premium_sub = await is_user_subbed(username)
+    user_basic_sub = await is_user_subbed_basic(username)
+    if user_premium_sub:
+        await create_default_user_data_nano(username,15)
+    elif user_basic_sub:
+        await create_default_user_data_nano(username,10)
+    else:
+        await create_default_user_data_nano(username,5)
 
 @router.startup()
 async def start_up():
@@ -163,6 +172,7 @@ async def start_up():
 async def profile_handler(message:Message):
     user_name = message.from_user.username
     user_id = message.from_user.id
+    await create_user_data_in_nano_database(str(user_id))
     await refil_requests_basic_sub(str(user_id))
     await change_user_state(str(user_id),False)
     await update_last_time(str(user_id))
@@ -306,6 +316,7 @@ async def count_all_users_handler(message:Message):
 @router.message(Command("referal"))
 async def referal_prog(message:Message):
     user_id = str(message.from_user.id)
+    await create_user_data_in_nano_database(str(user_id))
     user_referal_count = await get_user_referal_count(user_id)
     await update_last_time(str(user_id))
     referal_text = f"""📢 **РЕФЕРАЛЬНАЯ ПРОГРАММА**
@@ -347,6 +358,8 @@ https://t.me/character_ai_ludice_team_bot?start={user_id}
 
 @router.message(Command("pay"))
 async def subscribe_hander(message:Message):
+    user_id = str(message.from_user.id)
+    await create_user_data_in_nano_database(str(user_id))
     sub_text = """Возможности подписок: 
 
 Basic:
@@ -462,6 +475,7 @@ async def succesful_payment_handler(message:Message):
 @router.message(Command("reset"))
 async def reset(message:Message):
     user_id = str(message.from_user.id)
+    await create_user_data_in_nano_database(str(user_id))
     await refil_requests_basic_sub(str(user_id))
     await delete_all_messages(user_id)
     await update_last_time(str(user_id))
@@ -497,9 +511,10 @@ async def help(message:Message):
 
 
 
-@router.message(Command("reset"))
+@router.message(Command("support"))
 async def support_handler(message:Message):
     user_id = str(message.from_user.id)
+    await create_user_data_in_nano_database(str(user_id))
     await update_last_time(str(user_id))
     await message.answer(text =  "Отправьте ваш вопрос вот этому пользователю : @kksndid_support")
         
@@ -568,6 +583,7 @@ async def get_user_models_keyboard(user_id:str):
 @router.message(Command("ai_mode"))
 async def choose_model_handler(message:Message):
     user_id = str(message.from_user.id)
+    await create_user_data_in_nano_database(str(user_id))
     text = (
         "🤖 **Выберите AI модель**\n\n"
         
@@ -695,6 +711,7 @@ async def answer_messages(message:Message):
         await refil_requests_basic_sub(str(message.from_user.id))
         user_id = message.from_user.id
         await update_last_time(str(user_id))
+        await create_user_data_in_nano_database(str(user_id))
         res_unsub:bool = await unsub_full_func(str(user_id))
         if res_unsub:
             await message.answer( text="📅 Ваша подписка закончилась.\n\n"
@@ -900,6 +917,7 @@ async def answer_with_photo(message: Message):
     await refil_requests_basic_sub(str(message.from_user.id))
     user_id = message.from_user.id
     await update_last_time(str(user_id))
+    await create_user_data_in_nano_database(str(user_id))
     res_unsub: bool = await unsub_full_func(str(user_id))
     user_model = await get_user_model_name(str(user_id))
     if user_model == "google/gemini-3-pro-image-preview":
@@ -1035,6 +1053,7 @@ async def answer_with_document(message: Message):
     await refil_requests_basic_sub(str(message.from_user.id))
     user_id = message.from_user.id
     await update_last_time(str(user_id))
+    await create_user_data_in_nano_database(str(user_id))
     res_unsub: bool = await unsub_full_func(str(user_id))
     if res_unsub:
         await message.answer( text="📅 Ваша подписка закончилась.\n\n"

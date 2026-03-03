@@ -52,15 +52,15 @@ async def is_user_exists(username:str) -> bool:
            return True
        return False 
 
-async def create_default_user_data_nano(username:str):
-    if  await is_user_exists(username):
+async def create_default_user_data_nano(username:str,amount:int):
+    if await is_user_exists(username):
         return
     async with AsyncSession(async_engine) as conn:
         try:
             async with conn.begin():
                 stmt = nano_table.insert().values(
                     username = username,
-                    req = 5
+                    req = amount
                 )
                 await conn.execute(stmt)
         except Exception as e:
