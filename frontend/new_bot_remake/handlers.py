@@ -595,6 +595,9 @@ async def choose_model_handler(message:Message):
         "**DeepSeek: DeepSeek Chat**\n"
         "🧠 Китайская языковая модель\n\n"
         
+        "**Nano Banana: Banana Gen**\n"
+        "🍌 Генерация реалистичных изображений\n\n"
+        
     )
     user_keyborad = await get_user_models_keyboard(user_id)
     await message.answer(
