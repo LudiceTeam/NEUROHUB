@@ -117,6 +117,7 @@ async def refil_requests_basic_sub(username:str):
             
         if dt_int > last_ref_int:
             if user_premium_sub_flag:
+                await upadate_last_ref_date(username)
                 await refil_user_amount_nano(str(username),15)  
             
             if is_user_subbed_basic_flag:
