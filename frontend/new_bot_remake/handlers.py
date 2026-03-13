@@ -775,7 +775,7 @@ async def answer_messages(message:Message):
                 return
             
             response = await add_to_queue(str(user_id),str(message.text))
-            #await think_message.delete()
+            await think_message.delete()
             if type(response) == str:
                 await message.answer(text = response)
                 return
@@ -1006,7 +1006,7 @@ async def answer_with_photo(message: Message):
             os.unlink(image_path) 
             
             response = await add_to_queue(str(user_id),[str(message.caption),base64_image])
-            #await think_message.delete()
+            await think_message.delete()
             if type(response) == str:
                 await message.answer(text = response)
                 return
