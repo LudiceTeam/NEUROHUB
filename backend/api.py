@@ -30,8 +30,13 @@ from datetime import timedelta
 from typing import Optional
 import bcrypt
 import base64
-
-
+from database.core import create_deafault_user_data,remove_free_zapros,check_free_zapros_amount,buy_zaproses,get_amount_of_zaproses,subscribe,set_sub_bac_to_false,is_user_subbed,get_sub_date_end,subscribe_basic,unsub_basic, is_user_subbed_basic,get_last_ref_basic,refil_zap,upadate_last_ref_date,get_me,add_referal,get_user_referal_count
+from database.chats_database.chats_core import write_message,get_all_user_messsages,delete_all_messages
+from database.state_database.state_core import create_user_state,change_user_state,get_user_state
+from database.sale_database.sale_core import cretae_user_sale_table,change_to_sale,does_user_have_sale,give_referal_sub,does_user_have_referal_sub
+from database.ai_choose_database.ai_core import get_user_model_name,create_default_user_model_name,change_user_model_name
+from database.nano_banana.nano_core import create_default_user_data_nano,minus_one_req_nano,get_user_req_nano,refil_user_amount_nano
+from backend.database.long_time_database.long_time_core import default_long_time,update_last_time
 
 load_dotenv()
 
@@ -94,12 +99,41 @@ async def safe_get(req: Request):
 async def main():
     return "NEUROHUB API"
 
-class Regsiter(BaseModel):
-    username:str
-    password:str 
+class OnlyUsername(BaseModel):
+    user_id:str
 
 @limiter.limit("20/minute")
-@app.post("/register")
-async def regsiter(request:Request,req:Regsiter,x_signature:str = Header(...),x_timestamp:str = Header(...)):
+@app.post("/create_default_data")
+async def default_data_api(request:Request,req:OnlyUsername,x_signature:str = Header(...),x_timestamp:str = Header(...)):
     if not verify_signature(req.model_dump(),x_signature,x_timestamp):
-        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,detail = "Invalid")
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,detail = "Invalid.")
+    
+    
+    try:
+        await default_long_time(str(req.user_id))
+        await create_deafault_user_data(str(req.user_id))
+        await create_user_state(str(req.user_id))
+        await cretae_user_sale_table(str(req.user_id))
+        await create_default_user_model_name(str(req.user_id))
+        await create_default_user_data_nano(str(req.user_id),5)
+
+    except Exception as e:
+        raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+    
+
+@limiter.limit("20/minute")
+@app.post("/remove_request")
+async def remove_request_api(request:Request,req:OnlyUsername,x_signature:str = Header(...),x_timestamp:str = Header(...)):
+    if not verify_signature(req.model_dump(),x_signature,x_timestamp):
+        raise HTTPException(status_code = status.HTTP_403_FORBIDDEN,detail = "Invalid.")
+    
+    try:
+        result:bool = await remove_free_zapros(req.user_id)
+        if not result:
+            raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = f"User : {req.user_id} not found.")
+    except Exception as e:
+        raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+    
+
+    
+    
