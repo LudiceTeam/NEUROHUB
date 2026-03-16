@@ -9,6 +9,10 @@ import json
 import os
 import time
 from dotenv import load_dotenv
+import sys
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(ROOT_DIR)
 
 import asyncio
 import atexit
@@ -30,15 +34,15 @@ from datetime import timedelta
 from typing import Optional
 import bcrypt
 import base64
-from database.core import create_deafault_user_data,remove_free_zapros,check_free_zapros_amount,buy_zaproses,get_amount_of_zaproses,subscribe,set_sub_bac_to_false,is_user_subbed,get_sub_date_end,subscribe_basic,unsub_basic, is_user_subbed_basic,get_last_ref_basic,refil_zap,upadate_last_ref_date,get_me,add_referal,get_user_referal_count
-from database.chats_database.chats_core import write_message,get_all_user_messsages,delete_all_messages
-from database.state_database.state_core import create_user_state,change_user_state,get_user_state
-from database.sale_database.sale_core import cretae_user_sale_table,change_to_sale,does_user_have_sale,give_referal_sub,does_user_have_referal_sub
-from database.ai_choose_database.ai_core import get_user_model_name,create_default_user_model_name,change_user_model_name
-from database.nano_banana.nano_core import create_default_user_data_nano,minus_one_req_nano,get_user_req_nano,refil_user_amount_nano
-from database.long_time_database.long_time_core import default_long_time,update_last_time
-from database.jwt_db.jwt_core import safe_first_refresh_token,update_refresh_token,get_user_refresh_token
-from auth import create_access_token,create_refresh_token
+from backend.database.core import create_deafault_user_data,remove_free_zapros,check_free_zapros_amount,buy_zaproses,get_amount_of_zaproses,subscribe,set_sub_bac_to_false,is_user_subbed,get_sub_date_end,subscribe_basic,unsub_basic, is_user_subbed_basic,get_last_ref_basic,refil_zap,upadate_last_ref_date,get_me,add_referal,get_user_referal_count
+from backend.database.chats_database.chats_core import write_message,get_all_user_messsages,delete_all_messages
+from backend.database.state_database.state_core import create_user_state,change_user_state,get_user_state
+from backend.database.sale_database.sale_core import cretae_user_sale_table,change_to_sale,does_user_have_sale,give_referal_sub,does_user_have_referal_sub
+from backend.database.ai_choose_database.ai_core import get_user_model_name,create_default_user_model_name,change_user_model_name
+from backend.database.nano_banana.nano_core import create_default_user_data_nano,minus_one_req_nano,get_user_req_nano,refil_user_amount_nano
+from backend.database.long_time_database.long_time_core import default_long_time,update_last_time
+from backend.database.jwt_db.jwt_core import safe_first_refresh_token,update_refresh_token,get_user_refresh_token
+from backend.auth import create_access_token,create_refresh_token
 from datetime import datetime
 from urllib.parse import parse_qsl
 
@@ -111,7 +115,7 @@ def verify_telegram_init_data(init_data: str) -> dict:
         digestmod=hashlib.sha256
     ).hexdigest()
 
-    if not hmac.compare_digest(calculated_hash, received_hash):
+    if not hmac.compare_digest(calculated_hash, received_hash) and os.getenv("DEV_MODE") != "true":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Telegram signature"
@@ -173,6 +177,7 @@ async def default_data_api(request:Request,req:TelegrammInitData):
     except HTTPException:
         raise     
     except Exception as e:
+        print(f"Error : {e}")
         raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
     
 
@@ -232,5 +237,7 @@ async def remove_request_api(request:Request,user_data:dict = Depends(get_curren
         raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
     
 
-    
+
+if __name__ == "__main__":
+    uvicorn.run(app,host = "0.0.0.0",port = 1488)
     
