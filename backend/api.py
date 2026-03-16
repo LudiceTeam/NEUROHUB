@@ -240,7 +240,7 @@ async def remove_request_api(request:Request,user_data:dict = Depends(get_curren
     
 
 @limiter.limit("20/minute")
-@app.post("get/amount/requests")
+@app.post("/get/amount/requests")
 async def get_amount_of_requests_api(request:Request,user_data:dict = Depends(get_current_user)):
     try:
         result = await get_amount_of_zaproses(user_data["user_id"])
@@ -249,15 +249,61 @@ async def get_amount_of_requests_api(request:Request,user_data:dict = Depends(ge
             raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = f"User : {user_data["user_id"]} not found")
         
         
-        return {
-            "result":result
-        }
-        
+        return result
         
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+
+@limiter.limit("20/minute")
+@app.post("/subcribe")
+async def subscribe_premium_api(request:Request,user_data = Depends(get_current_user)):
+    
+    try:
+        result:bool = await subscribe(user_data["user_id"])
+        if not result:
+            raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = f"User : {user_data["user_id"]} not found")
+            
+          
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+
+
+@limiter.limit("20/minute")
+@app.post("/unsub")
+async def unsub_premium_api(request:Request,user_data = Depends(get_current_user)):
+    
+     
+    try:
+        result:bool = await set_sub_bac_to_false(user_data["user_id"])
+        if not result:
+            raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail = f"User : {user_data["user_id"]} not found")
+            
+          
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+
+
+@limiter.limit("20/minute")
+@app.post("/is/user/subbed")
+async def is_user_subbed(request:Request,user_data = Depends(get_current_user)):
+    
+    try:
+        result:bool = await set_sub_bac_to_false(user_data["user_id"])
+        return result
+          
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+
+
+    
 
 
 if __name__ == "__main__":

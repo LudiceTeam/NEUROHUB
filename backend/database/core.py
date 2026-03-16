@@ -163,7 +163,9 @@ async def get_amount_of_zaproses(username:str) -> int | bool:
             raise  Exception(f"Error : {e}")  
         
 # premium sub code
-async def subscribe(username:str):
+async def subscribe(username:str) -> bool:
+    if not await is_user_exists(username):
+        return False
     async with AsyncSession(async_engine) as conn:
         try:
             async with conn.begin():
@@ -171,15 +173,19 @@ async def subscribe(username:str):
                 date_exp = datetime.now().date() + timedelta(days=30)
                 stmt = table.update().where(table.c.username == username).values(sub = True,date = str(date_exp),last_ref = str(date))
                 await conn.execute(stmt)
+                return True
         except Exception as e:
             raise Exception(f"Error : {e}")
         
-async def set_sub_bac_to_false(username:str):
+async def set_sub_bac_to_false(username:str) -> bool:
+    if not await is_user_exists(username):
+        return False
     async with AsyncSession(async_engine) as conn:
         try:
             async with conn.begin():
                 stmt = table.update().where(table.c.username == username).values(sub = False,date = "")
                 await conn.execute(stmt)
+                return True
         except Exception as e:
             raise Exception(f"Error : {e}")
         
