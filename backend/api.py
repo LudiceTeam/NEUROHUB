@@ -1,4 +1,4 @@
-from fastapi import FastAPI,HTTPException,Depends,Request,Header,status
+from fastapi import FastAPI,HTTPException,Depends,Request,Header,status,UploadFile,File
 from pydantic import BaseModel
 from typing import List,Optional
 #from ai.olama import OllamaAPI
@@ -18,7 +18,7 @@ import asyncio
 import atexit
 import warnings
 import sys
-from openai import OpenAI
+from openai import AsyncOpenAI
 import requests
 import aiohttp
 import asyncio
@@ -301,6 +301,167 @@ async def is_user_subbed(request:Request,user_data = Depends(get_current_user)):
         raise
     except Exception as e:
         raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+
+
+OPEN_AI_KEY = os.getenv("OPEN_AI")
+
+
+client = AsyncOpenAI(
+    api_key=OPEN_AI_KEY,
+    base_url="https://openrouter.ai/api/v1",
+    timeout=60.0,
+    max_retries=2
+)
+
+async def ask_chat_gpt(request: str | List[str],user_id:str) -> str | bytes:
+    try:
+        req = ""
+        image_base64 = None
+        if isinstance(request, list):
+            req = request[0]
+            image_base64 = request[1]
+        else:
+            req = request  
+        
+        user_model = await get_user_model_name(user_id)
+        
+        if user_model == "google/gemini-3-pro-image-preview":
+            content = [
+                        {
+                            "type": "text",
+                            "text": req
+                        }
+                    ]
+            
+            if image_base64:
+                content.append(
+                    {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_base64}"
+                            }
+                    }
+                )
+            response = await client.chat.completions.create(
+            model=user_model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": content
+                }
+            ],
+            extra_body={
+                "modalities": ["image", "text"],  # КЛЮЧЕВОЙ ПАРАМЕТР!
+            }
+        )
+            message = response.choices[0].message
+            if hasattr(message, 'images') and message.images:
+                img_dict = message.images[0]
+                if 'image_url' in img_dict:
+                    img_data = img_dict['image_url']  # <-- ВОТ ТАК ПРАВИЛЬНО!
+                    
+                    true_img_data = img_data["url"]
+                   
+                    if ',' in true_img_data:
+                        base64_str = true_img_data.split(',')[1]
+                    else:
+                        base64_str = true_img_data
+                    
+                    
+                    image_bytes = base64.b64decode(base64_str)
+                    return image_bytes
+            return f"🤔 Нет изображения в ответе."
+            
+            
+        response = await client.chat.completions.create(  # <-- ВАЖНО: используем chat.completions
+            model=user_model,  # <-- ПРАВИЛЬНОЕ имя модели
+            messages=[
+                {"role": "user", "content": req}
+            ]
+        )
+        
+        result = response.choices[0].message.content.strip()
+        if not result:
+            return "🤔 Gemini вернул пустой ответ."
+        
+        return result
+        
+    except Exception as e:
+        print(f"OpenAI SDK error: {e}")
+        return f"❌ Ошибка: {str(e)[:100]}"
+
+
+
+
+class AskAi(BaseModel):
+    request:str
+
+
+@limiter.limit("20/minute")
+@app.post("/ask")
+async def ask_ai_text(request:Request,
+                req:AskAi,user_data:dict = Depends(get_current_user)):
+    try:
+        username = user_data["user_id"]
+        is_user_subbed_flag = await is_user_subbed(username)
+        user_messages = await get_all_user_messsages(username)
+        promt = f"""Ты — ассистент, который помогает пользователю, учитывая контекст переписки.
+
+История сообщений пользователя (для понимания стиля и контекста):
+{user_messages}
+
+Текущее сообщение пользователя (на которое нужно ответить):
+{str(req.request)}
+
+Задача: Ответь на текущее сообщение пользователя, опираясь на историю переписки. Сохраняй релевантность и последовательность диалога.
+"""
+        # генериция фоток
+        user_model = await get_user_model_name(username)
+        if user_model == "google/gemini-3-pro-image-preview":
+            user_nano_req = await get_user_req_nano(username)
+            #user_subbed = await is_user_subbed(str(user_id))
+            if user_nano_req == 0:
+               return "У вас не осталось запросов к Nano Banana."
+            response = await ask_chat_gpt(req.request,username)
+            if type(response) == str:
+                return response # текстовый ответ что то вроде "нет изображения в ответа"
+            elif type(response) == bytes:
+                return response # base64 код картинк
+            await minus_one_req_nano(username)    
+            return
+
+        # просто текстовые нейронки 
+
+        # без проемиум подписки (basic + нет подписки)
+        if not is_user_subbed_flag:
+            user_free_req = await get_amount_of_zaproses(username)
+            user_basic_sub = await is_user_subbed_basic(username)
+            if user_free_req == 0:
+                if user_basic_sub:
+                    return "У вас на сегодня закончились запросы.Попробуйте  завтра"
+                else:
+                    return "У вас не осталось бесплатных запросов.Купить подписку вы можете по перейдя в раздел покупки. "
+
+            else:
+                response = await ask_chat_gpt(promt,username)
+                await remove_free_zapros(username)
+                await write_message(username,req.request,response)
+                return response
+        # с премиум подпиской
+
+        else:
+            response = await ask_chat_gpt(username,promt)
+            await write_message(username,req.request,response)
+            return response
+            
+
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,detail = "Server Error.")
+
+
 
 
     

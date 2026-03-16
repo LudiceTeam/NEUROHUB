@@ -5,13 +5,10 @@ import aiogram
 import keyboards as kb
 import sys
 import os
-import cv2
 import tempfile
-import easyocr
 import numpy as np
 from config import PROJECT_ROOT
 from pathlib import Path
-import fitz
 from pdf2image import convert_from_path
 import zipfile
 from docx import Document
@@ -89,7 +86,7 @@ async def time_to_give_free_referal_sub(username:str) -> bool:
         recieved_sub = await does_user_have_referal_sub(username)
         if recieved_sub:
             return False
-        else:cle
+        else:
             await give_referal_sub(username)
             await subscribe_basic(username)
             return True
