@@ -15,5 +15,5 @@ backend/database/sale_database/.env
 frontend/new_bot_remake/keys.py
 backend/tests/.env
 backend/database/ai_choose_database/.env
-
+backend/database/payment_db/.env
 backend/.env
