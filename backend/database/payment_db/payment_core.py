@@ -45,15 +45,14 @@ async def create_table():
 
 
 
-async def create_payment(provider_token:str,order_id:str,price:int) -> str:
+async def create_payment(price:int,user_id:str) -> str:
     payment_id = str(uuid.uuid4())
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             stmt = table.insert().values(
-                payment_id = payment_id ,
-                order_id = order_id, 
+                payment_id = payment_id,
+                user_id = user_id,
                 status = "pending",
-                provider_payment_id = provider_token,
                 price = price
             )
             await conn.execute(stmt)

@@ -7,8 +7,7 @@ table = Table(
     "payment_table",
     metadata_obj,
     Column("payment_id",String,primary_key=True),
-    Column("order_id",String),
+    Column("user_id",String),
     Column("price",Integer),
-    Column("status",String),
-    Column("provider_payment_id", String)
+    Column("status",String)
 )

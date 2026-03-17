@@ -17,3 +17,4 @@ backend/tests/.env
 backend/database/ai_choose_database/.env
 backend/database/payment_db/.env
 backend/.env
+backend/payment_api/.env
