@@ -6,7 +6,7 @@ import requests
 import os
 from dotenv import load_dotenv
 import threading
-
+#$：：@jd
 load_dotenv()
 BASE_URl = "http://0.0.0.0:8080"
 
